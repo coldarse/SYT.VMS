@@ -1,0 +1,104 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createVendingMachineModal="ngForm"
+  (ngSubmit)="save()"
+>
+  <abp-modal-header
+    [title]="isCreate == true? ('Add Vending Machine' | localize) : ('Edit Vending Machine' | localize)"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+  <div class="modal-body">
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="name">
+        {{ "Name" | localize }}
+        </label>
+        <div class="col-md-9">
+        <input
+            type="text"
+            class="form-control"
+            name="name"
+            id="name"
+            required
+            maxlength="32"
+            [(ngModel)]="vendingMachine.name"
+            #nameModel="ngModel"
+            #nameEl
+            [disabled]="isHost == true? true : false"
+        />
+        <abp-validation-summary
+            [control]="nameModel"
+            [controlEl]="nameEl"
+        ></abp-validation-summary>
+        </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="address1">
+      {{ "Address1" | localize }}
+      </label>
+      <div class="col-md-9">
+      <input
+          type="text"
+          class="form-control"
+          name="address1"
+          id="address1"
+          required
+          maxlength="32"
+          [(ngModel)]="vendingMachine.address1"
+          #address1Model="ngModel"
+          #address1El
+          [disabled]="isHost == true? true : false"
+      />
+      <abp-validation-summary
+          [control]="address1Model"
+          [controlEl]="address1El"
+      ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="address2">
+      {{ "Address2" | localize }}
+      </label>
+      <div class="col-md-9">
+      <input
+          type="text"
+          class="form-control"
+          name="address2"
+          id="address2"
+          required
+          maxlength="32"
+          [(ngModel)]="vendingMachine.address2"
+          #address2Model="ngModel"
+          #address2El
+          [disabled]="isHost == true? true : false"
+      />
+      <abp-validation-summary
+          [control]="address2Model"
+          [controlEl]="address2El"
+      ></abp-validation-summary>
+      </div>
+    </div>
+    <div class="form-group row mb-0" *ngIf="isHost">
+        <label class="col-md-3 col-form-label">
+          {{ "Is Subscribed" | localize }}
+        </label>
+        <div class="col-md-9">
+          <div class="custom-control custom-checkbox">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              name="isActive"
+              id="isActive"
+              [(ngModel)]="vendingMachine.isSubscribed"
+            />
+            <label class="custom-control-label mt-2" for="isActive"></label>
+          </div>
+        </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createVendingMachineModal.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>
