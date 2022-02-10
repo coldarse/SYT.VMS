@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SYT.VendingMachineSystem.EntityFrameworkCore;
 
 namespace SYT.VendingMachineSystem.Migrations
 {
     [DbContext(typeof(VendingMachineSystemDbContext))]
-    partial class VendingMachineSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220210161043_Added_ItemCode_to_ActivityLogEntity")]
+    partial class Added_ItemCode_to_ActivityLogEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1604,9 +1606,6 @@ namespace SYT.VendingMachineSystem.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
-
-                    b.Property<bool>("Restart")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("Status")
                         .HasColumnType("tinyint(1)");

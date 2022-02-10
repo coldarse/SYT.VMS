@@ -16,5 +16,6 @@ namespace SYT.VendingMachineSystem.VendingMachines
         public string Address1 { get; set; }
         public string Address2 { get; set; }
         public DateTime lastUpdatedTime { get; set; }
+        public bool Restart { get; set; }
     }
 }

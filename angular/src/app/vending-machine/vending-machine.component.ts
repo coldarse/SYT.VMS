@@ -58,6 +58,16 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
   editUser(entity: VendingMachineDto){
     this.showCreateOrEditVendingMachineDialog(entity.id);
   }
+
+  restart(entity: VendingMachineDto){
+    entity.restart = true;
+    this._vendingMachineService.update(entity).subscribe(
+      () => {
+        this.notify.info(this.l('SavedSuccessfully'));
+      }
+    );
+  }
+
   private showCreateOrEditVendingMachineDialog(id?: number): void {
     let createOrEditUserDialog: BsModalRef;
     if (!id) {
@@ -129,7 +139,8 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
                 address1: element.address1,
                 address2: element.address2,
                 isSubscribed: element.isSubscribed,
-                tenant: tempTenant
+                tenant: tempTenant,
+                restart: element.restart
               }
 
               this.vendingMachines.push(tempVendingMachine);

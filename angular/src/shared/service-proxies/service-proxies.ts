@@ -1398,6 +1398,63 @@ export class TokenAuthServiceProxy {
     }
 
     /**
+     * @param vendingMachineName (optional) 
+     * @param activityDescription (optional) 
+     * @return Success
+     */
+    addToActivityLog(vendingMachineName: string | undefined, activityDescription: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/TokenAuth/addToActivityLog?";
+        if (vendingMachineName === null)
+            throw new Error("The parameter 'vendingMachineName' cannot be null.");
+        else if (vendingMachineName !== undefined)
+            url_ += "vendingMachineName=" + encodeURIComponent("" + vendingMachineName) + "&";
+        if (activityDescription === null)
+            throw new Error("The parameter 'activityDescription' cannot be null.");
+        else if (activityDescription !== undefined)
+            url_ += "activityDescription=" + encodeURIComponent("" + activityDescription) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddToActivityLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddToActivityLog(<any>response_);
+                } catch (e) {
+                    return <Observable<void>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<void>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddToActivityLog(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(<any>null);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(<any>null);
+    }
+
+    /**
      * @param body (optional) 
      * @return Success
      */
@@ -2495,6 +2552,7 @@ export class ActivityLogDto implements IActivityLogDto {
     vendingMachineName: string | undefined;
     activityDescription: string | undefined;
     lastUpdatedTime: moment.Moment;
+    itemCode: string | undefined;
 
     constructor(data?: IActivityLogDto) {
         if (data) {
@@ -2513,6 +2571,7 @@ export class ActivityLogDto implements IActivityLogDto {
             this.vendingMachineName = _data["vendingMachineName"];
             this.activityDescription = _data["activityDescription"];
             this.lastUpdatedTime = _data["lastUpdatedTime"] ? moment(_data["lastUpdatedTime"].toString()) : <any>undefined;
+            this.itemCode = _data["itemCode"];
         }
     }
 
@@ -2531,6 +2590,7 @@ export class ActivityLogDto implements IActivityLogDto {
         data["vendingMachineName"] = this.vendingMachineName;
         data["activityDescription"] = this.activityDescription;
         data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
+        data["itemCode"] = this.itemCode;
         return data; 
     }
 
@@ -2549,6 +2609,7 @@ export interface IActivityLogDto {
     vendingMachineName: string | undefined;
     activityDescription: string | undefined;
     lastUpdatedTime: moment.Moment;
+    itemCode: string | undefined;
 }
 
 export class ActivityLogDtoPagedResultDto implements IActivityLogDtoPagedResultDto {
@@ -4554,6 +4615,7 @@ export class VendingMachineDto implements IVendingMachineDto {
     address1: string | undefined;
     address2: string | undefined;
     lastUpdatedTime: moment.Moment;
+    restart: boolean;
 
     constructor(data?: IVendingMachineDto) {
         if (data) {
@@ -4574,6 +4636,7 @@ export class VendingMachineDto implements IVendingMachineDto {
             this.address1 = _data["address1"];
             this.address2 = _data["address2"];
             this.lastUpdatedTime = _data["lastUpdatedTime"] ? moment(_data["lastUpdatedTime"].toString()) : <any>undefined;
+            this.restart = _data["restart"];
         }
     }
 
@@ -4594,6 +4657,7 @@ export class VendingMachineDto implements IVendingMachineDto {
         data["address1"] = this.address1;
         data["address2"] = this.address2;
         data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
+        data["restart"] = this.restart;
         return data; 
     }
 
@@ -4614,6 +4678,7 @@ export interface IVendingMachineDto {
     address1: string | undefined;
     address2: string | undefined;
     lastUpdatedTime: moment.Moment;
+    restart: boolean;
 }
 
 export class VendingMachineDtoPagedResultDto implements IVendingMachineDtoPagedResultDto {

@@ -17,5 +17,6 @@ namespace SYT.VendingMachineSystem.ActivityLogs.Dto
         public string VendingMachineName { get; set; }
         public string ActivityDescription { get; set; }
         public DateTime lastUpdatedTime { get; set; }
+        public string ItemCode { get; set; }
     }
 }

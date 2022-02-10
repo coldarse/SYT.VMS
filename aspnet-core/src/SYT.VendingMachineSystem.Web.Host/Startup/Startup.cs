@@ -21,6 +21,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using Abp.Timing;
+using SYT.VendingMachineSystem.Web.Host.HubController;
 
 namespace SYT.VendingMachineSystem.Web.Host.Startup
 {
@@ -56,7 +57,11 @@ namespace SYT.VendingMachineSystem.Web.Host.Startup
             IdentityRegistrar.Register(services);
             AuthConfigurer.Configure(services, _appConfiguration);
 
-            services.AddSignalR();
+            
+            services.AddSignalR(options => 
+            {
+                options.EnableDetailedErrors = true;
+            });
 
             // Configure CORS for angular2 UI
             services.AddCors(
@@ -75,6 +80,8 @@ namespace SYT.VendingMachineSystem.Web.Host.Startup
                         .AllowCredentials()
                 )
             );
+
+            services.AddControllers();
 
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
@@ -108,7 +115,8 @@ namespace SYT.VendingMachineSystem.Web.Host.Startup
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<AbpCommonHub>("/signalr");
+                //endpoints.MapHub<AbpCommonHub>("/signalr");
+                endpoints.MapHub<MyMessageHub>("/signalrvms");
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("defaultWithArea", "{area}/{controller=Home}/{action=Index}/{id?}");
             });
