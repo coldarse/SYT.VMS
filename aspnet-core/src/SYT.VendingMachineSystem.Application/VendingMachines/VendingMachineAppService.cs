@@ -13,6 +13,7 @@ namespace SYT.VendingMachineSystem.VendingMachines
 {
     public class VendingMachineAppService : CrudAppService<VendingMachine, VendingMachineDto, int, PagedVendingMachineResultRequestDto>
     {
+        
         public VendingMachineAppService(IRepository<VendingMachine, int> repository) : base(repository)
         {
         }

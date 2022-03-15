@@ -1,4 +1,5 @@
 ﻿using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -11,21 +12,40 @@ namespace SYT.VendingMachineSystem.Web.Host.HubController
     public class MyMessageHub : Hub
     {
         private readonly IRepository<VendingMachine> _VendingMachineRepository;
-        public MyMessageHub(IRepository<VendingMachine> VendingMachineRepository)
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
+
+        public MyMessageHub(IRepository<VendingMachine> VendingMachineRepository, IUnitOfWorkManager unitOfWorkManager)
         {
             _VendingMachineRepository = VendingMachineRepository;
+            _unitOfWorkManager = unitOfWorkManager;
         }
+
+        public override Task OnConnectedAsync()
+        {
+            Console.WriteLine("Someone Connected");
+            return base.OnConnectedAsync();
+        }
+
         public async Task isShutDown(string vmName)
         {
-            VendingMachine tempVM = _VendingMachineRepository.GetAll().Where(x => x.Name.ToUpper() == vmName.ToUpper()).FirstOrDefault();
-
-            await Clients.Client(this.Context.ConnectionId).SendAsync("askIsShutDown", tempVM.Restart);
-
-            if (tempVM.Restart)
+            using (var unitOfWork = _unitOfWorkManager.Begin())
             {
-                tempVM.Restart = false;
-                await _VendingMachineRepository.UpdateAsync(tempVM);
+                VendingMachine tempVM = _VendingMachineRepository.FirstOrDefault(x => x.Name.ToUpper() == vmName.ToUpper());
+                await Clients.Client(this.Context.ConnectionId).SendAsync("askIsShutDown", tempVM.Restart);
+
+                if (tempVM.Restart)
+                {
+                    tempVM.Restart = false;
+                    await _VendingMachineRepository.UpdateAsync(tempVM);
+                }
+
+                unitOfWork.Complete();
             }
+        }
+
+        public async Task imHere(string name)
+        {
+            await Clients.Client(this.Context.ConnectionId).SendAsync("receivedHere", "Hello " + name);
         }
     }
 }
