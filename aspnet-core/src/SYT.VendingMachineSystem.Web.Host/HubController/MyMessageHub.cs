@@ -43,9 +43,16 @@ namespace SYT.VendingMachineSystem.Web.Host.HubController
             }
         }
 
-        public async Task imHere(string name)
+        public async Task Status(string vmName)
         {
-            await Clients.Client(this.Context.ConnectionId).SendAsync("receivedHere", "Hello " + name);
+            using (var unitOfWork = _unitOfWorkManager.Begin())
+            {
+                VendingMachine tempVM = _VendingMachineRepository.FirstOrDefault(x => x.Name.ToUpper() == vmName.ToUpper());
+                tempVM.lastUpdatedTime = DateTime.Now;
+                await _VendingMachineRepository.UpdateAsync(tempVM);
+
+                unitOfWork.Complete();
+            }
         }
     }
 }

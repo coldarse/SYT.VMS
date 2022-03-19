@@ -164,7 +164,10 @@
                 "
                             >
                                 <td>{{ vendingMachine.name }}</td>
-                                <td>{{ vendingMachine.status == true ? 'Online' : 'Offline' }}</td>
+                                <td>
+                                    <span class="badge btn-success" *ngIf="vendingMachine.status">Online</span>
+                                    <span class="badge btn-danger" *ngIf="!vendingMachine.status">Offline</span>
+                                </td>
                                 <td>{{ vendingMachine.address1 }}</td>
                                 <td>{{ vendingMachine.address2 }}</td>
                                 <td *ngIf="isHost">
