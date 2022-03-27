@@ -20,24 +20,6 @@ namespace SYT.VendingMachineSystem.VendingMachines
 
         protected override IQueryable<VendingMachine> CreateFilteredQuery(PagedVendingMachineResultRequestDto input)
         {
-            //List<VendingMachine> temp = Repository.GetAll().ToList();
-            //foreach(var vm in temp)
-            //{
-            //    double difference = (DateTime.UtcNow - vm.lastUpdatedTime).TotalMinutes;
-            //    if(difference <= 10)
-            //    {
-            //        vm.Status = true;
-            //    }
-            //    else
-            //    {
-            //        vm.Status = false;
-            //    }
-
-            //    Repository.Update(vm);
-            //}
-
-            
-
             return Repository.GetAllIncluding()
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.Name.Contains(input.Keyword))
                 .WhereIf(input.isActive.HasValue, x => x.Status.Equals(input.isActive))

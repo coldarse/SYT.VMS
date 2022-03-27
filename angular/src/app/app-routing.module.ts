@@ -10,6 +10,7 @@ import { RolesComponent } from 'app/roles/roles.component';
 import { ChangePasswordComponent } from './users/change-password/change-password.component';
 import { VendingMachineComponent } from './vending-machine/vending-machine.component';
 import { ActivityLogComponent } from './activity-log/activity-log.component';
+import { SalesOrderComponent } from './sales-order/sales-order.component';
 
 @NgModule({
     imports: [
@@ -25,7 +26,8 @@ import { ActivityLogComponent } from './activity-log/activity-log.component';
                     { path: 'about', component: AboutComponent, canActivate: [AppRouteGuard] },
                     { path: 'update-password', component: ChangePasswordComponent, canActivate: [AppRouteGuard] },
                     { path: 'vending-machine', component: VendingMachineComponent },
-                    { path: 'activity-log', component: ActivityLogComponent }
+                    { path: 'activity-log', component: ActivityLogComponent },
+                    { path: 'sales-order', component: SalesOrderComponent }
                 ]
             }
         ])

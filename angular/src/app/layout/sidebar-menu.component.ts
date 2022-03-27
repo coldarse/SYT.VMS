@@ -73,6 +73,11 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
                 '/app/activity-log',
                 'fas fa-clipboard-list'
             ),
+            new MenuItem(
+                this.l('SalesOrder'),
+                '/app/sales-order',
+                'fas fa-cart-arrow-down'
+            ),
         ];
     }
 

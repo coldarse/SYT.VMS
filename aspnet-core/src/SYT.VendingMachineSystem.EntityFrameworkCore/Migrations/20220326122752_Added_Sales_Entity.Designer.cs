@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SYT.VendingMachineSystem.EntityFrameworkCore;
 
 namespace SYT.VendingMachineSystem.Migrations
 {
     [DbContext(typeof(VendingMachineSystemDbContext))]
-    partial class VendingMachineSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220326122752_Added_Sales_Entity")]
+    partial class Added_Sales_Entity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1605,8 +1607,8 @@ namespace SYT.VendingMachineSystem.Migrations
                     b.Property<int>("TenantId")
                         .HasColumnType("int");
 
-                    b.Property<string>("VendingMachine")
-                        .HasColumnType("longtext");
+                    b.Property<int>("VendingMachine")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

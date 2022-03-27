@@ -21,6 +21,8 @@ using Abp.Domain.Repositories;
 using SYT.VendingMachineSystem.VendingMachines;
 using SYT.VendingMachineSystem.EncryptKeys;
 using SYT.VendingMachineSystem.ActivityLogs;
+using SYT.VendingMachineSystem.Sales;
+using Abp.Domain.Uow;
 
 namespace SYT.VendingMachineSystem.Controllers
 {
@@ -36,6 +38,8 @@ namespace SYT.VendingMachineSystem.Controllers
         private readonly UserRegistrationManager _userRegistrationManager;
         private readonly IRepository<VendingMachine> _VendingMachineRepository;
         private readonly IRepository<ActivityLog> _ActivityLogRepository;
+        private readonly IRepository<Sale> _SaleRepository;
+        private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public TokenAuthController(
             LogInManager logInManager,
@@ -46,7 +50,9 @@ namespace SYT.VendingMachineSystem.Controllers
             IExternalAuthManager externalAuthManager,
             UserRegistrationManager userRegistrationManager,
             IRepository<VendingMachine> VendingMachineRepository,
-            IRepository<ActivityLog> ActivityLogRepository)
+            IRepository<ActivityLog> ActivityLogRepository,
+            IRepository<Sale> SaleRepository,
+            IUnitOfWorkManager unitOfWorkManager)
         {
             _logInManager = logInManager;
             _tenantCache = tenantCache;
@@ -57,6 +63,8 @@ namespace SYT.VendingMachineSystem.Controllers
             _userRegistrationManager = userRegistrationManager;
             _VendingMachineRepository = VendingMachineRepository;
             _ActivityLogRepository = ActivityLogRepository;
+            _SaleRepository = SaleRepository;
+            _unitOfWorkManager = unitOfWorkManager;
         }
 
         #region CustomAPI
@@ -87,29 +95,61 @@ namespace SYT.VendingMachineSystem.Controllers
         }    
 
         [HttpPost]
-        public async void addToActivityLog(activityLogDto activityLog)
+        public async Task<ActivityLog> addToActivityLog(activityLogDto activityLog)
         {
+
             List<VendingMachine> tempVending = _VendingMachineRepository.GetAll().ToList();
 
-            foreach (var tv in tempVending)
+            foreach(var temp in tempVending)
             {
-                if (tv.Name == activityLog.vendingMachineName)
+                if(temp.Name == activityLog.vendingMachineName)
                 {
-                    if (tv.isSubscribed == true)
+                    if (temp.isSubscribed)
                     {
                         ActivityLog al = new ActivityLog();
-                        al.TenantId = tv.TenantId;
-                        al.VendingMachineId = tv.Id;
-                        al.VendingMachineName = tv.Name;
+                        al.TenantId = temp.TenantId;
+                        al.VendingMachineId = temp.Id;
+                        al.VendingMachineName = temp.Name;
                         al.ActivityDescription = activityLog.activityDescription;
                         al.lastUpdatedTime = DateTime.Now;
 
-                        await _ActivityLogRepository.InsertAsync(al);
-                        break;
+                        return await _ActivityLogRepository.InsertAsync(al);
                     }
-                    break;
+                    else
+                    {
+                        throw new UserFriendlyException("Vending Machine is not Subscribed!", "401");
+                    }
                 }
             }
+            throw new UserFriendlyException("Vending Machine is not Found!", "401");
+        }
+
+        [HttpPost]
+        public async Task<Sale> addToSales(saleDto sale)
+        {
+            List<VendingMachine> tempVending = _VendingMachineRepository.GetAllList();
+
+            foreach (var temp in tempVending)
+            {
+                if (temp.Name == sale.vendingMachineName)
+                {
+                    if (temp.isSubscribed)
+                    {
+                        Sale so = new Sale();
+                        so.TenantId = temp.TenantId;
+                        so.VendingMachine = temp.Name;
+                        so.ItemCode = sale.itemCode;
+                        so.OrderTime = DateTime.Now;
+
+                        return await _SaleRepository.InsertAsync(so);
+                    }
+                    else
+                    {
+                        throw new UserFriendlyException("Vending Machine is not Subscribed!", "401");
+                    }
+                }
+            }
+            throw new UserFriendlyException("Vending Machine is not Found!", "401");
         }
 
         #endregion

@@ -12,7 +12,6 @@ namespace SYT.VendingMachineSystem.VendingMachines
         public int TenantId { get; set; }
         public string Name { get; set; }
         public bool isSubscribed { get; set; }
-
         private bool _status;
         public bool Status 
         {

@@ -13,6 +13,7 @@ using SYT.VendingMachineSystem.Authentication.JwtBearer;
 using SYT.VendingMachineSystem.Configuration;
 using SYT.VendingMachineSystem.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Abp.Configuration.Startup;
 
 namespace SYT.VendingMachineSystem
 {
@@ -38,6 +39,8 @@ namespace SYT.VendingMachineSystem
             Configuration.DefaultNameOrConnectionString = _appConfiguration.GetConnectionString(
                 VendingMachineSystemConsts.ConnectionStringName
             );
+
+            Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = true;
 
             // Use database for language management
             Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();

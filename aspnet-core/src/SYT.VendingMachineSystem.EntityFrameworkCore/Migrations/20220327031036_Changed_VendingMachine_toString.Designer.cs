@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SYT.VendingMachineSystem.EntityFrameworkCore;
 
 namespace SYT.VendingMachineSystem.Migrations
 {
     [DbContext(typeof(VendingMachineSystemDbContext))]
-    partial class VendingMachineSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220327031036_Changed_VendingMachine_toString")]
+    partial class Changed_VendingMachine_toString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

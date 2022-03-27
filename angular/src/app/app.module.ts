@@ -39,9 +39,10 @@ import { SidebarLogoComponent } from './layout/sidebar-logo.component';
 import { SidebarUserPanelComponent } from './layout/sidebar-user-panel.component';
 import { SidebarMenuComponent } from './layout/sidebar-menu.component';
 import { VendingMachineComponent } from './vending-machine/vending-machine.component';
-import { ActivityLogServiceProxy, VendingMachineServiceProxy } from '@shared/service-proxies/service-proxies';
+import { ActivityLogServiceProxy, SaleServiceProxy, VendingMachineServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CreateUpdateVendingMachineComponent } from './vending-machine/create-update-vending-machine/create-update-vending-machine.component';
 import { ActivityLogComponent } from './activity-log/activity-log.component';
+import { SalesOrderComponent } from './sales-order/sales-order.component';
 
 
 @NgModule({
@@ -76,6 +77,7 @@ import { ActivityLogComponent } from './activity-log/activity-log.component';
     VendingMachineComponent,
     CreateUpdateVendingMachineComponent,
     ActivityLogComponent,
+    SalesOrderComponent,
   ],
   imports: [
     CommonModule,
@@ -95,6 +97,7 @@ import { ActivityLogComponent } from './activity-log/activity-log.component';
   providers: [
     VendingMachineServiceProxy,
     ActivityLogServiceProxy,
+    SaleServiceProxy,
   ],
   entryComponents: [
     // tenants

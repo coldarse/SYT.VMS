@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SYT.VendingMachineSystem.EntityFrameworkCore;
 
 namespace SYT.VendingMachineSystem.Migrations
 {
     [DbContext(typeof(VendingMachineSystemDbContext))]
-    partial class VendingMachineSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220322131057_InitialCommit")]
+    partial class InitialCommit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1588,29 +1590,6 @@ namespace SYT.VendingMachineSystem.Migrations
                     b.HasIndex("TenancyName");
 
                     b.ToTable("AbpTenants");
-                });
-
-            modelBuilder.Entity("SYT.VendingMachineSystem.Sales.Sale", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ItemCode")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("OrderTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("TenantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VendingMachine")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sales");
                 });
 
             modelBuilder.Entity("SYT.VendingMachineSystem.VendingMachines.VendingMachine", b =>

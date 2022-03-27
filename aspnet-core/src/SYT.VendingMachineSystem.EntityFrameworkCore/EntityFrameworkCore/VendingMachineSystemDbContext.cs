@@ -5,6 +5,7 @@ using SYT.VendingMachineSystem.Authorization.Users;
 using SYT.VendingMachineSystem.MultiTenancy;
 using SYT.VendingMachineSystem.VendingMachines;
 using SYT.VendingMachineSystem.ActivityLogs;
+using SYT.VendingMachineSystem.Sales;
 
 namespace SYT.VendingMachineSystem.EntityFrameworkCore
 {
@@ -14,6 +15,8 @@ namespace SYT.VendingMachineSystem.EntityFrameworkCore
         public DbSet<VendingMachine> VendingMachines { get; set; }
 
         public DbSet<ActivityLog> ActivityLogs { get; set; }
+
+        public DbSet<Sale> Sales { get; set; }
         
         public VendingMachineSystemDbContext(DbContextOptions<VendingMachineSystemDbContext> options)
             : base(options)
