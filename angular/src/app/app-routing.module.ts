@@ -23,7 +23,7 @@ import { SalesOrderComponent } from './sales-order/sales-order.component';
                     { path: 'users', component: UsersComponent, data: { permission: 'Pages.Users' }, canActivate: [AppRouteGuard] },
                     { path: 'roles', component: RolesComponent, data: { permission: 'Pages.Roles' }, canActivate: [AppRouteGuard] },
                     { path: 'tenants', component: TenantsComponent, data: { permission: 'Pages.Tenants' }, canActivate: [AppRouteGuard] },
-                    { path: 'about', component: AboutComponent, canActivate: [AppRouteGuard] },
+                    { path: 'about', component: VendingMachineComponent },
                     { path: 'update-password', component: ChangePasswordComponent, canActivate: [AppRouteGuard] },
                     { path: 'vending-machine', component: VendingMachineComponent },
                     { path: 'activity-log', component: ActivityLogComponent },

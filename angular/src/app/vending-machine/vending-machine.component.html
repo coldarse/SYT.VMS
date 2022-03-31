@@ -146,7 +146,7 @@
                                 <th>{{ "Address2" | localize }}</th>
                                 <th *ngIf="isHost">{{ "Subscribed" | localize }}</th>
                                 <th *ngIf="isHost">{{ "Tenant" | localize }}</th>
-                                <th *ngIf="isHost">{{ "Restart" | localize }}</th>
+                                <th>{{ "Restart" | localize }}</th>
                                 <th style="width: 310px;">{{ "Actions" | localize }}</th>
                             </tr>
                             </thead>
@@ -182,7 +182,7 @@
                                     </div>
                                 </td>
                                 <td *ngIf="isHost">{{ vendingMachine.tenant }}</td>
-                                <td *ngIf="isHost">
+                                <td>
                                     <button
                                             type="button"
                                             class="btn btn-sm bg-warning"

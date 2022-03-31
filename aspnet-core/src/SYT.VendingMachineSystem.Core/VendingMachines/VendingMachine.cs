@@ -18,7 +18,7 @@ namespace SYT.VendingMachineSystem.VendingMachines
             get
             {
                 double difference = (DateTime.UtcNow - lastUpdatedTime).TotalMinutes;
-                if (difference <= 10)
+                if (difference <= 5)
                 {
                     return true;
                 }

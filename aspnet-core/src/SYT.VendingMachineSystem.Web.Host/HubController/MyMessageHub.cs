@@ -33,21 +33,19 @@ namespace SYT.VendingMachineSystem.Web.Host.HubController
                 VendingMachine tempVM = _VendingMachineRepository.FirstOrDefault(x => x.Name.ToUpper() == vmName.ToUpper());
                 await Clients.Client(this.Context.ConnectionId).SendAsync("askIsShutDown", tempVM.Restart);
 
+                var tid = tempVM.TenantId;
+                var restart = tempVM.Restart;
+
                 if (tempVM.Restart)
                 {
                     tempVM.Restart = false;
-                    await _VendingMachineRepository.UpdateAsync(tempVM);
+                }
+                else
+                {
+                    tempVM.Restart = restart;
                 }
 
-                unitOfWork.Complete();
-            }
-        }
-
-        public async Task Status(string vmName)
-        {
-            using (var unitOfWork = _unitOfWorkManager.Begin())
-            {
-                VendingMachine tempVM = _VendingMachineRepository.FirstOrDefault(x => x.Name.ToUpper() == vmName.ToUpper());
+                tempVM.TenantId = tid;
                 tempVM.lastUpdatedTime = DateTime.Now;
                 await _VendingMachineRepository.UpdateAsync(tempVM);
 

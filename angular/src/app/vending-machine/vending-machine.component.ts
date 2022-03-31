@@ -140,6 +140,8 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
                 address2: element.address2,
                 isSubscribed: element.isSubscribed,
                 tenant: tempTenant,
+                tenantId: element.tenantId,
+                lastUpdatedTime: element.lastUpdatedTime,
                 restart: element.restart
               }
 
@@ -161,8 +163,24 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
           })
         )
         .subscribe((result: VendingMachineDtoPagedResultDto) => {
-          this.vendingMachines = result.items
-          this.showPaging(result, pageNumber);
+          this.vendingMachines = [];
+            result.items.forEach((element: VendingMachineDto) => {
+
+              let tempVendingMachine = {
+                id: element.id,
+                name: element.name,
+                status: element.status,
+                address1: element.address1,
+                address2: element.address2,
+                isSubscribed: element.isSubscribed,
+                tenantId: request.tenantId,
+                lastUpdatedTime: element.lastUpdatedTime,
+                restart: element.restart
+              }
+
+              this.vendingMachines.push(tempVendingMachine);
+            });
+            this.showPaging(result, pageNumber);
         });
       }
 
