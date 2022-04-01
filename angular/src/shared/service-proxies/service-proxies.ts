@@ -1695,7 +1695,7 @@ export class TokenAuthServiceProxy {
      * @param activityDescription (optional) 
      * @return Success
      */
-    addToActivityLog(vendingMachineName: string | undefined, activityDescription: string | undefined): Observable<void> {
+    addToActivityLog(vendingMachineName: string | undefined, activityDescription: string | undefined): Observable<ActivityLog> {
         let url_ = this.baseUrl + "/api/TokenAuth/addToActivityLog?";
         if (vendingMachineName === null)
             throw new Error("The parameter 'vendingMachineName' cannot be null.");
@@ -1711,6 +1711,7 @@ export class TokenAuthServiceProxy {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Accept": "text/plain"
             })
         };
 
@@ -1721,14 +1722,14 @@ export class TokenAuthServiceProxy {
                 try {
                     return this.processAddToActivityLog(<any>response_);
                 } catch (e) {
-                    return <Observable<void>><any>_observableThrow(e);
+                    return <Observable<ActivityLog>><any>_observableThrow(e);
                 }
             } else
-                return <Observable<void>><any>_observableThrow(response_);
+                return <Observable<ActivityLog>><any>_observableThrow(response_);
         }));
     }
 
-    protected processAddToActivityLog(response: HttpResponseBase): Observable<void> {
+    protected processAddToActivityLog(response: HttpResponseBase): Observable<ActivityLog> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1737,14 +1738,78 @@ export class TokenAuthServiceProxy {
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(<any>null);
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ActivityLog.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(<any>null);
+        return _observableOf<ActivityLog>(<any>null);
+    }
+
+    /**
+     * @param vendingMachineName (optional) 
+     * @param itemCode (optional) 
+     * @return Success
+     */
+    addToSales(vendingMachineName: string | undefined, itemCode: string | undefined): Observable<Sale> {
+        let url_ = this.baseUrl + "/api/TokenAuth/addToSales?";
+        if (vendingMachineName === null)
+            throw new Error("The parameter 'vendingMachineName' cannot be null.");
+        else if (vendingMachineName !== undefined)
+            url_ += "vendingMachineName=" + encodeURIComponent("" + vendingMachineName) + "&";
+        if (itemCode === null)
+            throw new Error("The parameter 'itemCode' cannot be null.");
+        else if (itemCode !== undefined)
+            url_ += "itemCode=" + encodeURIComponent("" + itemCode) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddToSales(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddToSales(<any>response_);
+                } catch (e) {
+                    return <Observable<Sale>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<Sale>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAddToSales(response: HttpResponseBase): Observable<Sale> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Sale.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<Sale>(<any>null);
     }
 
     /**
@@ -2836,6 +2901,73 @@ export class VendingMachineServiceProxy {
         }
         return _observableOf<void>(<any>null);
     }
+}
+
+export class ActivityLog implements IActivityLog {
+    id: number;
+    tenantId: number;
+    vendingMachineId: number;
+    vendingMachineName: string | undefined;
+    activityDescription: string | undefined;
+    lastUpdatedTime: moment.Moment;
+    itemCode: string | undefined;
+
+    constructor(data?: IActivityLog) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.vendingMachineId = _data["vendingMachineId"];
+            this.vendingMachineName = _data["vendingMachineName"];
+            this.activityDescription = _data["activityDescription"];
+            this.lastUpdatedTime = _data["lastUpdatedTime"] ? moment(_data["lastUpdatedTime"].toString()) : <any>undefined;
+            this.itemCode = _data["itemCode"];
+        }
+    }
+
+    static fromJS(data: any): ActivityLog {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActivityLog();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["vendingMachineId"] = this.vendingMachineId;
+        data["vendingMachineName"] = this.vendingMachineName;
+        data["activityDescription"] = this.activityDescription;
+        data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
+        data["itemCode"] = this.itemCode;
+        return data; 
+    }
+
+    clone(): ActivityLog {
+        const json = this.toJSON();
+        let result = new ActivityLog();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IActivityLog {
+    id: number;
+    tenantId: number;
+    vendingMachineId: number;
+    vendingMachineName: string | undefined;
+    activityDescription: string | undefined;
+    lastUpdatedTime: moment.Moment;
+    itemCode: string | undefined;
 }
 
 export class ActivityLogDto implements IActivityLogDto {
@@ -4529,6 +4661,65 @@ export class RoleListDtoListResultDto implements IRoleListDtoListResultDto {
 
 export interface IRoleListDtoListResultDto {
     items: RoleListDto[] | undefined;
+}
+
+export class Sale implements ISale {
+    id: number;
+    tenantId: number;
+    vendingMachine: string | undefined;
+    itemCode: string | undefined;
+    orderTime: moment.Moment;
+
+    constructor(data?: ISale) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.vendingMachine = _data["vendingMachine"];
+            this.itemCode = _data["itemCode"];
+            this.orderTime = _data["orderTime"] ? moment(_data["orderTime"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Sale {
+        data = typeof data === 'object' ? data : {};
+        let result = new Sale();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["vendingMachine"] = this.vendingMachine;
+        data["itemCode"] = this.itemCode;
+        data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
+        return data; 
+    }
+
+    clone(): Sale {
+        const json = this.toJSON();
+        let result = new Sale();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ISale {
+    id: number;
+    tenantId: number;
+    vendingMachine: string | undefined;
+    itemCode: string | undefined;
+    orderTime: moment.Moment;
 }
 
 export class SaleDto implements ISaleDto {

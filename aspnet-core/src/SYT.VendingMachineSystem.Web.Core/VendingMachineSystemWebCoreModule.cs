@@ -40,7 +40,8 @@ namespace SYT.VendingMachineSystem
                 VendingMachineSystemConsts.ConnectionStringName
             );
 
-            Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = true;
+            // Send all Error to Front End, Swagger Show Error
+            //Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = true;
 
             // Use database for language management
             Configuration.Modules.Zero().LanguageManagement.EnableDbLocalization();
