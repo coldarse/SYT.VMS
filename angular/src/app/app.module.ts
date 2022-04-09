@@ -39,7 +39,7 @@ import { SidebarLogoComponent } from './layout/sidebar-logo.component';
 import { SidebarUserPanelComponent } from './layout/sidebar-user-panel.component';
 import { SidebarMenuComponent } from './layout/sidebar-menu.component';
 import { VendingMachineComponent } from './vending-machine/vending-machine.component';
-import { ActivityLogServiceProxy, SaleServiceProxy, VendingMachineServiceProxy } from '@shared/service-proxies/service-proxies';
+import { ActivityLogServiceProxy, ExportExcelService, SaleServiceProxy, VendingMachineServiceProxy } from '@shared/service-proxies/service-proxies';
 import { CreateUpdateVendingMachineComponent } from './vending-machine/create-update-vending-machine/create-update-vending-machine.component';
 import { ActivityLogComponent } from './activity-log/activity-log.component';
 import { SalesOrderComponent } from './sales-order/sales-order.component';
@@ -98,6 +98,7 @@ import { SalesOrderComponent } from './sales-order/sales-order.component';
     VendingMachineServiceProxy,
     ActivityLogServiceProxy,
     SaleServiceProxy,
+    ExportExcelService,
   ],
   entryComponents: [
     // tenants

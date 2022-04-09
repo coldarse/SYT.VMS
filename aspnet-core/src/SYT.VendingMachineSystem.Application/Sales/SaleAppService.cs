@@ -19,9 +19,30 @@ namespace SYT.VendingMachineSystem.Sales
 
         protected override IQueryable<Sale> CreateFilteredQuery(PagedSaleResultRequestDto input)
         {
-            return Repository.GetAllIncluding()
+            DateTime fromDate = Convert.ToDateTime(input.FromDate);
+            DateTime toDate = Convert.ToDateTime(input.ToDate);
+            var filteredQuery = Repository.GetAllIncluding()
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.VendingMachine.Contains(input.Keyword))
-                .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
+                .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId))
+                .Where(x => x.OrderTime >= fromDate && x.OrderTime <= toDate.AddDays(1).AddSeconds(-1));
+
+            if(filteredQuery.Any()) return filteredQuery;
+
+            return Repository.GetAllIncluding()
+            .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.VendingMachine.Contains(input.Keyword))
+            .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
+        }
+
+        public List<Sale> getDataForReport(PagedSaleResultRequestDto input)
+        {
+            DateTime fromDate = Convert.ToDateTime(input.FromDate);
+            DateTime toDate = Convert.ToDateTime(input.ToDate);
+            var filteredQuery = Repository.GetAllIncluding()
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.VendingMachine.Contains(input.Keyword))
+                .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId))
+                .Where(x => x.OrderTime >= fromDate && x.OrderTime <= toDate.AddDays(1).AddSeconds(-1));
+
+            return filteredQuery.ToList();
         }
     }
 }

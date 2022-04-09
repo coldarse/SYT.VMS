@@ -13,7 +13,38 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-md-6">&emsp;</div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        From
+                                    </span>
+                                </div>
+                                <input
+                                        type="date"
+                                        class="form-control"
+                                        name="keyword"
+                                        [ngModel]="fromDate | date:'yyyy-MM-dd'"
+                                        (ngModelChange)="fromDate = $event"
+                                />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        To
+                                    </span>
+                                </div>
+                                <input
+                                        type="date"
+                                        class="form-control"
+                                        name="keyword"
+                                        [ngModel]="toDate | date:'yyyy-MM-dd'"
+                                        (ngModelChange)="toDate = $event"
+                                />
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="input-group">
                                 <div class="input-group-prepend">

@@ -1,12 +1,16 @@
+import { formatDate } from '@angular/common';
 import { Component, Injector, OnInit } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PagedListingComponentBase, PagedRequestDto } from '@shared/paged-listing-component-base';
-import { SaleDto, SaleDtoPagedResultDto, SaleServiceProxy, TenantDto, TenantDtoPagedResultDto, TenantServiceProxy } from '@shared/service-proxies/service-proxies';
+import { ExportExcelService, SaleDto, SaleDtoPagedResultDto, SaleServiceProxy, TenantDto, TenantDtoPagedResultDto, TenantServiceProxy } from '@shared/service-proxies/service-proxies';
+import * as moment from 'moment';
 import { finalize } from 'rxjs/operators';
 
 class PagedSalesRequestDto extends PagedRequestDto {
   keyword: string;
   tenantId: number;
+  fromDate: string;
+  toDate: string;
 }
 
 
@@ -22,11 +26,18 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
   sales: any[] = [];
   isHost = false;
   tenants: TenantDto[] = [];
+  fromDate = new Date();
+  toDate = new Date();
+  dataForExcel = [];
+
+  excelSalesData: any[] = [];
+
 
   constructor(
     injector: Injector,
     private _saleService: SaleServiceProxy,
     private _tenantService: TenantServiceProxy,
+    public ete: ExportExcelService,
   ) {
     super(injector);
    }
@@ -35,6 +46,49 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
     if(this.appSession.tenantId == null) this.isHost = true;
   }
 
+  generateReport(){
+    this._saleService
+      .getDataForReport(
+        this.keyword,
+        this.appSession.tenantId == null ? 1 : this.appSession.tenantId,
+        formatDate(this.fromDate, 'yyyy-MM-dd', 'en'),
+        formatDate(this.toDate, 'yyyy-MM-dd', 'en')
+      )
+      .subscribe((result: SaleDto[]) => {
+        this.excelSalesData = result;
+        if(this.sales.length != 0){
+          this.sales.forEach((row: any) => {
+            this.dataForExcel.push({
+              'Id': row.id,
+              'Vending Machine': row.vendingMachine,
+              'Item Code': row.itemCode,
+              'Order Time': formatDate(row.orderTime, 'yyyy-MM-dd hh:mm:ss', 'en')
+            });
+          })
+
+          let valueForExcel = [];
+
+          this.dataForExcel.forEach((row: any) => {
+            valueForExcel.push(Object.values(row));
+          })
+
+
+          let reportData = {
+            title: 'Order Sales Report - ' + formatDate(new Date(), 'yyyy-MM-dd', 'en'),
+            data: valueForExcel,
+            headers: Object.keys(this.dataForExcel[0])
+          }
+
+          this.ete.exportExcel(reportData);
+        }
+        else{
+          this.notify.info("Please filter records to generate report.");
+        }
+      });
+
+  }
+
+
   protected list(
     request: PagedSalesRequestDto,
     pageNumber: number,
@@ -42,6 +96,8 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
     ): void {
       request.keyword = this.keyword;
       request.tenantId = this.appSession.tenantId == null ? 1 : this.appSession.tenantId;
+      request.fromDate = formatDate(this.fromDate, 'yyyy-MM-dd', 'en');
+      request.toDate = formatDate(this.toDate, 'yyyy-MM-dd', 'en');
 
       if(this.isHost){
         this._tenantService
@@ -51,7 +107,9 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
           this._saleService
           .getAll(
             request.keyword,
-            request.tenantId
+            request.tenantId,
+            request.fromDate,
+            request.toDate
           ).pipe(
             finalize(() => {
               finishedCallback();
@@ -83,7 +141,9 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
         this._saleService
         .getAll(
           request.keyword,
-          request.tenantId
+          request.tenantId,
+          request.fromDate,
+          request.toDate
         ).pipe(
           finalize(() => {
             finishedCallback();

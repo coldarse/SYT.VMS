@@ -8,8 +8,9 @@ namespace SYT.VendingMachineSystem.ActivityLogs.Dto
 {
     public class PagedActivityLogResultRequestDto
     {
-        public string Keyword { get; set; }
         public string VendingMachine { get; set; }
         public int tenantId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
     }
 }

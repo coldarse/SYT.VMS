@@ -62,8 +62,13 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
   restart(entity: VendingMachineDto){
     entity.restart = true;
     this._vendingMachineService.update(entity).subscribe(
-      () => {
-        this.notify.info(this.l('SavedSuccessfully'));
+      (element: any) => {
+        if(element.restart == true){
+          this.notify.info(this.l('SavedSuccessfully'));
+        }
+        else{
+          this.notify.info(this.l('Failed'));
+        }
       }
     );
   }

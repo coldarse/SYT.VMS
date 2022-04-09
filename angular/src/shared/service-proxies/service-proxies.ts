@@ -13,6 +13,8 @@ import { Injectable, Inject, Optional, InjectionToken } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angular/common/http';
 
 import * as moment from 'moment';
+import { Workbook } from 'exceljs';
+import * as fs from 'file-saver';
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
@@ -28,7 +30,7 @@ export class AccountServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     isTenantAvailable(body: IsTenantAvailableInput | undefined): Observable<IsTenantAvailableOutput> {
@@ -84,7 +86,7 @@ export class AccountServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     register(body: RegisterInput | undefined): Observable<RegisterOutput> {
@@ -152,7 +154,7 @@ export class ActivityLogServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<ActivityLogDto> {
@@ -208,17 +210,14 @@ export class ActivityLogServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param vendingMachine (optional) 
-     * @param tenantId (optional) 
+     * @param vendingMachine (optional)
+     * @param tenantId (optional)
+     * @param fromDate (optional)
+     * @param toDate (optional)
      * @return Success
      */
-    getAll(keyword: string | undefined, vendingMachine: string | undefined, tenantId: number | undefined): Observable<ActivityLogDtoPagedResultDto> {
+    getAll(vendingMachine: string | undefined, tenantId: number | undefined, fromDate: string | undefined, toDate: string | undefined): Observable<ActivityLogDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/ActivityLog/GetAll?";
-        if (keyword === null)
-            throw new Error("The parameter 'keyword' cannot be null.");
-        else if (keyword !== undefined)
-            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
         if (vendingMachine === null)
             throw new Error("The parameter 'vendingMachine' cannot be null.");
         else if (vendingMachine !== undefined)
@@ -227,6 +226,14 @@ export class ActivityLogServiceProxy {
             throw new Error("The parameter 'tenantId' cannot be null.");
         else if (tenantId !== undefined)
             url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        if (fromDate === null)
+            throw new Error("The parameter 'fromDate' cannot be null.");
+        else if (fromDate !== undefined)
+            url_ += "FromDate=" + encodeURIComponent("" + fromDate) + "&";
+        if (toDate === null)
+            throw new Error("The parameter 'toDate' cannot be null.");
+        else if (toDate !== undefined)
+            url_ += "ToDate=" + encodeURIComponent("" + toDate) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -274,7 +281,7 @@ export class ActivityLogServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: ActivityLogDto | undefined): Observable<ActivityLogDto> {
@@ -330,7 +337,7 @@ export class ActivityLogServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: ActivityLogDto | undefined): Observable<ActivityLogDto> {
@@ -386,7 +393,7 @@ export class ActivityLogServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -450,7 +457,7 @@ export class ConfigurationServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     changeUiTheme(body: ChangeUiThemeInput | undefined): Observable<void> {
@@ -514,7 +521,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: CreateRoleDto | undefined): Observable<RoleDto> {
@@ -570,7 +577,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param permission (optional) 
+     * @param permission (optional)
      * @return Success
      */
     getRoles(permission: string | undefined): Observable<RoleListDtoListResultDto> {
@@ -626,7 +633,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: RoleDto | undefined): Observable<RoleDto> {
@@ -682,7 +689,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -785,7 +792,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     getRoleForEdit(id: number | undefined): Observable<GetRoleForEditOutput> {
@@ -841,7 +848,7 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<RoleDto> {
@@ -897,9 +904,9 @@ export class RoleServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param skipCount (optional) 
-     * @param maxResultCount (optional) 
+     * @param keyword (optional)
+     * @param skipCount (optional)
+     * @param maxResultCount (optional)
      * @return Success
      */
     getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<RoleDtoPagedResultDto> {
@@ -964,6 +971,121 @@ export class RoleServiceProxy {
 }
 
 @Injectable()
+export class ExportExcelService {
+
+    constructor() { }
+
+    exportExcel(excelData) {
+
+      //Title, Header & Data
+      const title = excelData.title;
+      const header = excelData.headers
+      const data = excelData.data;
+
+      //Create a workbook with a worksheet
+      let workbook = new Workbook();
+      let worksheet = workbook.addWorksheet('Sales Data');
+
+
+      //Add Row and formatting
+      worksheet.mergeCells('A1', 'D4');
+      let titleRow = worksheet.getCell('C1');
+      titleRow.value = title
+      titleRow.font = {
+        name: 'Calibri',
+        size: 16,
+        underline: 'single',
+        bold: true,
+        color: { argb: '0085A3' }
+      }
+      titleRow.alignment = { vertical: 'middle', horizontal: 'center' }
+
+      // Date
+      worksheet.mergeCells('G1:H4');
+      let d = new Date();
+      let date = d.getDate() + '-' + d.getMonth() + '-' + d.getFullYear();
+    //   let dateCell = worksheet.getCell('G1');
+    //   dateCell.value = date;
+    //   dateCell.font = {
+    //     name: 'Calibri',
+    //     size: 12,
+    //     bold: true
+    //   }
+    //   dateCell.alignment = { vertical: 'middle', horizontal: 'center' }
+
+      //Add Image
+      // let myLogoImage = workbook.addImage({
+      //   base64: logo.imgBase64,
+      //   extension: 'png',
+      // });
+      // worksheet.mergeCells('A1:B4');
+      // worksheet.addImage(myLogoImage, 'A1:B4');
+
+      //Blank Row
+      worksheet.addRow([]);
+
+      //Adding Header Row
+      let headerRow = worksheet.addRow(header);
+      headerRow.eachCell((cell, number) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '4167B8' },
+          bgColor: { argb: '' }
+        }
+        cell.font = {
+          bold: true,
+          color: { argb: 'FFFFFF' },
+          size: 12
+        }
+      })
+
+      // Adding Data with Conditional Formatting
+      data.forEach(d => {
+        let row = worksheet.addRow(d);
+
+        // let sales = row.getCell(6);
+        // let color = 'FF99FF99';
+        // if (+sales.value < 200000) {
+        //   color = 'FF9999'
+        // }
+
+        // sales.fill = {
+        //   type: 'pattern',
+        //   pattern: 'solid',
+        //   fgColor: { argb: color }
+        // }
+      }
+      );
+
+      worksheet.getColumn(2).width = 20;
+      worksheet.getColumn(3).width = 40;
+      worksheet.getColumn(4).width = 60;
+      worksheet.addRow([]);
+
+      //Footer Row
+      let footerRow = worksheet.addRow(['Order Sales Report Generated from vending.sytsolutions.vms at ' + date]);
+      footerRow.getCell(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFB050' }
+      };
+
+      footerRow.alignment = { vertical: 'middle', horizontal: 'center' }
+
+      //Merge Cells
+      worksheet.mergeCells(`A${footerRow.number}:D${footerRow.number}`);
+
+      //Generate & Save Excel File
+      workbook.xlsx.writeBuffer().then((data) => {
+        let blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        fs.saveAs(blob, title + '.xlsx');
+      })
+
+    }
+  }
+
+@Injectable()
 export class SaleServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -975,7 +1097,85 @@ export class SaleServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param keyword (optional)
+     * @param tenantId (optional)
+     * @param fromDate (optional)
+     * @param toDate (optional)
+     * @return Success
+     */
+    getDataForReport(keyword: string | undefined, tenantId: number | undefined, fromDate: string | undefined, toDate: string | undefined): Observable<Sale[]> {
+        let url_ = this.baseUrl + "/api/services/app/Sale/getDataForReport?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (tenantId === null)
+            throw new Error("The parameter 'tenantId' cannot be null.");
+        else if (tenantId !== undefined)
+            url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        if (fromDate === null)
+            throw new Error("The parameter 'fromDate' cannot be null.");
+        else if (fromDate !== undefined)
+            url_ += "FromDate=" + encodeURIComponent("" + fromDate) + "&";
+        if (toDate === null)
+            throw new Error("The parameter 'toDate' cannot be null.");
+        else if (toDate !== undefined)
+            url_ += "ToDate=" + encodeURIComponent("" + toDate) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDataForReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDataForReport(<any>response_);
+                } catch (e) {
+                    return <Observable<Sale[]>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<Sale[]>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDataForReport(response: HttpResponseBase): Observable<Sale[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200.push(Sale.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<Sale[]>(<any>null);
+    }
+
+    /**
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<SaleDto> {
@@ -1031,11 +1231,13 @@ export class SaleServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param tenantId (optional) 
+     * @param keyword (optional)
+     * @param tenantId (optional)
+     * @param fromDate (optional)
+     * @param toDate (optional)
      * @return Success
      */
-    getAll(keyword: string | undefined, tenantId: number | undefined): Observable<SaleDtoPagedResultDto> {
+    getAll(keyword: string | undefined, tenantId: number | undefined, fromDate: string | undefined, toDate: string | undefined): Observable<SaleDtoPagedResultDto> {
         let url_ = this.baseUrl + "/api/services/app/Sale/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
@@ -1045,6 +1247,14 @@ export class SaleServiceProxy {
             throw new Error("The parameter 'tenantId' cannot be null.");
         else if (tenantId !== undefined)
             url_ += "tenantId=" + encodeURIComponent("" + tenantId) + "&";
+        if (fromDate === null)
+            throw new Error("The parameter 'fromDate' cannot be null.");
+        else if (fromDate !== undefined)
+            url_ += "FromDate=" + encodeURIComponent("" + fromDate) + "&";
+        if (toDate === null)
+            throw new Error("The parameter 'toDate' cannot be null.");
+        else if (toDate !== undefined)
+            url_ += "ToDate=" + encodeURIComponent("" + toDate) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -1092,7 +1302,7 @@ export class SaleServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: SaleDto | undefined): Observable<SaleDto> {
@@ -1148,7 +1358,7 @@ export class SaleServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: SaleDto | undefined): Observable<SaleDto> {
@@ -1204,7 +1414,7 @@ export class SaleServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -1331,7 +1541,7 @@ export class TenantServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: CreateTenantDto | undefined): Observable<TenantDto> {
@@ -1387,7 +1597,7 @@ export class TenantServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -1439,7 +1649,7 @@ export class TenantServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<TenantDto> {
@@ -1495,10 +1705,10 @@ export class TenantServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param isActive (optional) 
-     * @param skipCount (optional) 
-     * @param maxResultCount (optional) 
+     * @param keyword (optional)
+     * @param isActive (optional)
+     * @param skipCount (optional)
+     * @param maxResultCount (optional)
      * @return Success
      */
     getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<TenantDtoPagedResultDto> {
@@ -1566,7 +1776,7 @@ export class TenantServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: TenantDto | undefined): Observable<TenantDto> {
@@ -1634,8 +1844,8 @@ export class TokenAuthServiceProxy {
     }
 
     /**
-     * @param name (optional) 
-     * @param status (optional) 
+     * @param name (optional)
+     * @param status (optional)
      * @return Success
      */
     updateVendingMachineStatus(name: string | undefined, status: boolean | undefined): Observable<void> {
@@ -1691,8 +1901,8 @@ export class TokenAuthServiceProxy {
     }
 
     /**
-     * @param vendingMachineName (optional) 
-     * @param activityDescription (optional) 
+     * @param vendingMachineName (optional)
+     * @param activityDescription (optional)
      * @return Success
      */
     addToActivityLog(vendingMachineName: string | undefined, activityDescription: string | undefined): Observable<ActivityLog> {
@@ -1752,8 +1962,8 @@ export class TokenAuthServiceProxy {
     }
 
     /**
-     * @param vendingMachineName (optional) 
-     * @param itemCode (optional) 
+     * @param vendingMachineName (optional)
+     * @param itemCode (optional)
      * @return Success
      */
     addToSales(vendingMachineName: string | undefined, itemCode: string | undefined): Observable<Sale> {
@@ -1813,7 +2023,7 @@ export class TokenAuthServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     authenticate(body: AuthenticateModel | undefined): Observable<AuthenticateResultModel> {
@@ -1927,7 +2137,7 @@ export class TokenAuthServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     externalAuthenticate(body: ExternalAuthenticateModel | undefined): Observable<ExternalAuthenticateResultModel> {
@@ -1995,7 +2205,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: CreateUserDto | undefined): Observable<UserDto> {
@@ -2051,7 +2261,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: UserDto | undefined): Observable<UserDto> {
@@ -2107,7 +2317,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -2159,7 +2369,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     activate(body: Int64EntityDto | undefined): Observable<void> {
@@ -2211,7 +2421,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     deActivate(body: Int64EntityDto | undefined): Observable<void> {
@@ -2314,7 +2524,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     changeLanguage(body: ChangeUserLanguageDto | undefined): Observable<void> {
@@ -2366,7 +2576,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     changePassword(body: ChangePasswordDto | undefined): Observable<boolean> {
@@ -2422,7 +2632,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     resetPassword(body: ResetPasswordDto | undefined): Observable<boolean> {
@@ -2478,7 +2688,7 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<UserDto> {
@@ -2534,10 +2744,10 @@ export class UserServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param isActive (optional) 
-     * @param skipCount (optional) 
-     * @param maxResultCount (optional) 
+     * @param keyword (optional)
+     * @param isActive (optional)
+     * @param skipCount (optional)
+     * @param maxResultCount (optional)
      * @return Success
      */
     getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UserDtoPagedResultDto> {
@@ -2617,7 +2827,7 @@ export class VendingMachineServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     get(id: number | undefined): Observable<VendingMachineDto> {
@@ -2673,9 +2883,9 @@ export class VendingMachineServiceProxy {
     }
 
     /**
-     * @param keyword (optional) 
-     * @param isActive (optional) 
-     * @param tenantId (optional) 
+     * @param keyword (optional)
+     * @param isActive (optional)
+     * @param tenantId (optional)
      * @return Success
      */
     getAll(keyword: string | undefined, isActive: boolean | undefined, tenantId: number | undefined): Observable<VendingMachineDtoPagedResultDto> {
@@ -2739,7 +2949,7 @@ export class VendingMachineServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     create(body: VendingMachineDto | undefined): Observable<VendingMachineDto> {
@@ -2795,7 +3005,7 @@ export class VendingMachineServiceProxy {
     }
 
     /**
-     * @param body (optional) 
+     * @param body (optional)
      * @return Success
      */
     update(body: VendingMachineDto | undefined): Observable<VendingMachineDto> {
@@ -2851,7 +3061,7 @@ export class VendingMachineServiceProxy {
     }
 
     /**
-     * @param id (optional) 
+     * @param id (optional)
      * @return Success
      */
     delete(id: number | undefined): Observable<void> {
@@ -2949,7 +3159,7 @@ export class ActivityLog implements IActivityLog {
         data["activityDescription"] = this.activityDescription;
         data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
         data["itemCode"] = this.itemCode;
-        return data; 
+        return data;
     }
 
     clone(): ActivityLog {
@@ -3016,7 +3226,7 @@ export class ActivityLogDto implements IActivityLogDto {
         data["activityDescription"] = this.activityDescription;
         data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
         data["itemCode"] = this.itemCode;
-        return data; 
+        return data;
     }
 
     clone(): ActivityLogDto {
@@ -3076,7 +3286,7 @@ export class ActivityLogDtoPagedResultDto implements IActivityLogDtoPagedResultD
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): ActivityLogDtoPagedResultDto {
@@ -3138,7 +3348,7 @@ export class ApplicationInfoDto implements IApplicationInfoDto {
                     (<any>data["features"])[key] = this.features[key];
             }
         }
-        return data; 
+        return data;
     }
 
     clone(): ApplicationInfoDto {
@@ -3189,7 +3399,7 @@ export class AuthenticateModel implements IAuthenticateModel {
         data["userNameOrEmailAddress"] = this.userNameOrEmailAddress;
         data["password"] = this.password;
         data["rememberClient"] = this.rememberClient;
-        return data; 
+        return data;
     }
 
     clone(): AuthenticateModel {
@@ -3243,7 +3453,7 @@ export class AuthenticateResultModel implements IAuthenticateResultModel {
         data["encryptedAccessToken"] = this.encryptedAccessToken;
         data["expireInSeconds"] = this.expireInSeconds;
         data["userId"] = this.userId;
-        return data; 
+        return data;
     }
 
     clone(): AuthenticateResultModel {
@@ -3292,7 +3502,7 @@ export class ChangePasswordDto implements IChangePasswordDto {
         data = typeof data === 'object' ? data : {};
         data["currentPassword"] = this.currentPassword;
         data["newPassword"] = this.newPassword;
-        return data; 
+        return data;
     }
 
     clone(): ChangePasswordDto {
@@ -3336,7 +3546,7 @@ export class ChangeUiThemeInput implements IChangeUiThemeInput {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["theme"] = this.theme;
-        return data; 
+        return data;
     }
 
     clone(): ChangeUiThemeInput {
@@ -3379,7 +3589,7 @@ export class ChangeUserLanguageDto implements IChangeUserLanguageDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["languageName"] = this.languageName;
-        return data; 
+        return data;
     }
 
     clone(): ChangeUserLanguageDto {
@@ -3442,7 +3652,7 @@ export class CreateRoleDto implements ICreateRoleDto {
             for (let item of this.grantedPermissions)
                 data["grantedPermissions"].push(item);
         }
-        return data; 
+        return data;
     }
 
     clone(): CreateRoleDto {
@@ -3501,7 +3711,7 @@ export class CreateTenantDto implements ICreateTenantDto {
         data["adminEmailAddress"] = this.adminEmailAddress;
         data["connectionString"] = this.connectionString;
         data["isActive"] = this.isActive;
-        return data; 
+        return data;
     }
 
     clone(): CreateTenantDto {
@@ -3574,7 +3784,7 @@ export class CreateUserDto implements ICreateUserDto {
                 data["roleNames"].push(item);
         }
         data["password"] = this.password;
-        return data; 
+        return data;
     }
 
     clone(): CreateUserDto {
@@ -3629,7 +3839,7 @@ export class ExternalAuthenticateModel implements IExternalAuthenticateModel {
         data["authProvider"] = this.authProvider;
         data["providerKey"] = this.providerKey;
         data["providerAccessCode"] = this.providerAccessCode;
-        return data; 
+        return data;
     }
 
     clone(): ExternalAuthenticateModel {
@@ -3683,7 +3893,7 @@ export class ExternalAuthenticateResultModel implements IExternalAuthenticateRes
         data["encryptedAccessToken"] = this.encryptedAccessToken;
         data["expireInSeconds"] = this.expireInSeconds;
         data["waitingForActivation"] = this.waitingForActivation;
-        return data; 
+        return data;
     }
 
     clone(): ExternalAuthenticateResultModel {
@@ -3732,7 +3942,7 @@ export class ExternalLoginProviderInfoModel implements IExternalLoginProviderInf
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["clientId"] = this.clientId;
-        return data; 
+        return data;
     }
 
     clone(): ExternalLoginProviderInfoModel {
@@ -3782,7 +3992,7 @@ export class FlatPermissionDto implements IFlatPermissionDto {
         data["name"] = this.name;
         data["displayName"] = this.displayName;
         data["description"] = this.description;
-        return data; 
+        return data;
     }
 
     clone(): FlatPermissionDto {
@@ -3833,7 +4043,7 @@ export class GetCurrentLoginInformationsOutput implements IGetCurrentLoginInform
         data["application"] = this.application ? this.application.toJSON() : <any>undefined;
         data["user"] = this.user ? this.user.toJSON() : <any>undefined;
         data["tenant"] = this.tenant ? this.tenant.toJSON() : <any>undefined;
-        return data; 
+        return data;
     }
 
     clone(): GetCurrentLoginInformationsOutput {
@@ -3900,7 +4110,7 @@ export class GetRoleForEditOutput implements IGetRoleForEditOutput {
             for (let item of this.grantedPermissionNames)
                 data["grantedPermissionNames"].push(item);
         }
-        return data; 
+        return data;
     }
 
     clone(): GetRoleForEditOutput {
@@ -3945,7 +4155,7 @@ export class Int64EntityDto implements IInt64EntityDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        return data; 
+        return data;
     }
 
     clone(): Int64EntityDto {
@@ -3988,7 +4198,7 @@ export class IsTenantAvailableInput implements IIsTenantAvailableInput {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["tenancyName"] = this.tenancyName;
-        return data; 
+        return data;
     }
 
     clone(): IsTenantAvailableInput {
@@ -4034,7 +4244,7 @@ export class IsTenantAvailableOutput implements IIsTenantAvailableOutput {
         data = typeof data === 'object' ? data : {};
         data["state"] = this.state;
         data["tenantId"] = this.tenantId;
-        return data; 
+        return data;
     }
 
     clone(): IsTenantAvailableOutput {
@@ -4087,7 +4297,7 @@ export class PermissionDto implements IPermissionDto {
         data["name"] = this.name;
         data["displayName"] = this.displayName;
         data["description"] = this.description;
-        return data; 
+        return data;
     }
 
     clone(): PermissionDto {
@@ -4141,7 +4351,7 @@ export class PermissionDtoListResultDto implements IPermissionDtoListResultDto {
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
-        return data; 
+        return data;
     }
 
     clone(): PermissionDtoListResultDto {
@@ -4199,7 +4409,7 @@ export class RegisterInput implements IRegisterInput {
         data["emailAddress"] = this.emailAddress;
         data["password"] = this.password;
         data["captchaResponse"] = this.captchaResponse;
-        return data; 
+        return data;
     }
 
     clone(): RegisterInput {
@@ -4247,7 +4457,7 @@ export class RegisterOutput implements IRegisterOutput {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["canLogin"] = this.canLogin;
-        return data; 
+        return data;
     }
 
     clone(): RegisterOutput {
@@ -4296,7 +4506,7 @@ export class ResetPasswordDto implements IResetPasswordDto {
         data["adminPassword"] = this.adminPassword;
         data["userId"] = this.userId;
         data["newPassword"] = this.newPassword;
-        return data; 
+        return data;
     }
 
     clone(): ResetPasswordDto {
@@ -4364,7 +4574,7 @@ export class RoleDto implements IRoleDto {
             for (let item of this.grantedPermissions)
                 data["grantedPermissions"].push(item);
         }
-        return data; 
+        return data;
     }
 
     clone(): RoleDto {
@@ -4420,7 +4630,7 @@ export class RoleDtoListResultDto implements IRoleDtoListResultDto {
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
-        return data; 
+        return data;
     }
 
     clone(): RoleDtoListResultDto {
@@ -4474,7 +4684,7 @@ export class RoleDtoPagedResultDto implements IRoleDtoPagedResultDto {
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): RoleDtoPagedResultDto {
@@ -4530,7 +4740,7 @@ export class RoleEditDto implements IRoleEditDto {
         data["displayName"] = this.displayName;
         data["description"] = this.description;
         data["isStatic"] = this.isStatic;
-        return data; 
+        return data;
     }
 
     clone(): RoleEditDto {
@@ -4592,7 +4802,7 @@ export class RoleListDto implements IRoleListDto {
         data["isStatic"] = this.isStatic;
         data["isDefault"] = this.isDefault;
         data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        return data; 
+        return data;
     }
 
     clone(): RoleListDto {
@@ -4648,7 +4858,7 @@ export class RoleListDtoListResultDto implements IRoleListDtoListResultDto {
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
-        return data; 
+        return data;
     }
 
     clone(): RoleListDtoListResultDto {
@@ -4703,7 +4913,7 @@ export class Sale implements ISale {
         data["vendingMachine"] = this.vendingMachine;
         data["itemCode"] = this.itemCode;
         data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
-        return data; 
+        return data;
     }
 
     clone(): Sale {
@@ -4762,7 +4972,7 @@ export class SaleDto implements ISaleDto {
         data["vendingMachine"] = this.vendingMachine;
         data["itemCode"] = this.itemCode;
         data["orderTime"] = this.orderTime ? this.orderTime.toISOString() : <any>undefined;
-        return data; 
+        return data;
     }
 
     clone(): SaleDto {
@@ -4820,7 +5030,7 @@ export class SaleDtoPagedResultDto implements ISaleDtoPagedResultDto {
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): SaleDtoPagedResultDto {
@@ -4879,7 +5089,7 @@ export class TenantDto implements ITenantDto {
         data["tenancyName"] = this.tenancyName;
         data["name"] = this.name;
         data["isActive"] = this.isActive;
-        return data; 
+        return data;
     }
 
     clone(): TenantDto {
@@ -4936,7 +5146,7 @@ export class TenantDtoPagedResultDto implements ITenantDtoPagedResultDto {
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): TenantDtoPagedResultDto {
@@ -4986,7 +5196,7 @@ export class TenantLoginInfoDto implements ITenantLoginInfoDto {
         data["id"] = this.id;
         data["tenancyName"] = this.tenancyName;
         data["name"] = this.name;
-        return data; 
+        return data;
     }
 
     clone(): TenantLoginInfoDto {
@@ -5066,7 +5276,7 @@ export class UserDto implements IUserDto {
             for (let item of this.roleNames)
                 data["roleNames"].push(item);
         }
-        return data; 
+        return data;
     }
 
     clone(): UserDto {
@@ -5129,7 +5339,7 @@ export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): UserDtoPagedResultDto {
@@ -5185,7 +5395,7 @@ export class UserLoginInfoDto implements IUserLoginInfoDto {
         data["surname"] = this.surname;
         data["userName"] = this.userName;
         data["emailAddress"] = this.emailAddress;
-        return data; 
+        return data;
     }
 
     clone(): UserLoginInfoDto {
@@ -5256,7 +5466,7 @@ export class VendingMachineDto implements IVendingMachineDto {
         data["address2"] = this.address2;
         data["lastUpdatedTime"] = this.lastUpdatedTime ? this.lastUpdatedTime.toISOString() : <any>undefined;
         data["restart"] = this.restart;
-        return data; 
+        return data;
     }
 
     clone(): VendingMachineDto {
@@ -5318,7 +5528,7 @@ export class VendingMachineDtoPagedResultDto implements IVendingMachineDtoPagedR
                 data["items"].push(item.toJSON());
         }
         data["totalCount"] = this.totalCount;
-        return data; 
+        return data;
     }
 
     clone(): VendingMachineDtoPagedResultDto {

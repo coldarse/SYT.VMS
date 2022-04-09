@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { Component, Injector, OnInit } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { PagedListingComponentBase, PagedRequestDto } from '@shared/paged-listing-component-base';
@@ -5,9 +6,10 @@ import { ActivityLogDto, ActivityLogDtoPagedResultDto, ActivityLogServiceProxy, 
 import { finalize } from 'rxjs/operators';
 
 class PagedVendingMachinesRequestDto extends PagedRequestDto {
-  keyword: string;
   vendingMachine: string;
   tenantId: number;
+  fromDate: string;
+  toDate: string;
 }
 
 @Component({
@@ -23,6 +25,8 @@ export class ActivityLogComponent extends PagedListingComponentBase<ActivityLogD
   activityLogs: any[] = [];
   isHost = false;
   tenants: TenantDto[] = [];
+  fromDate = new Date();
+  toDate = new Date();
 
   constructor(
     injector: Injector,
@@ -41,9 +45,10 @@ export class ActivityLogComponent extends PagedListingComponentBase<ActivityLogD
     pageNumber: number,
     finishedCallback: Function
     ): void {
-      request.keyword = this.keyword;
       request.vendingMachine = this.keyword;
       request.tenantId = this.appSession.tenantId == null ? 1 : this.appSession.tenantId;
+      request.fromDate = formatDate(this.fromDate, 'yyyy-MM-dd', 'en');
+      request.toDate = formatDate(this.toDate, 'yyyy-MM-dd', 'en');
 
       if(this.isHost){
         this._tenantService
@@ -52,9 +57,10 @@ export class ActivityLogComponent extends PagedListingComponentBase<ActivityLogD
           this.tenants = res.items;
           this._activityLogService
           .getAll(
-            request.keyword,
             request.vendingMachine,
-            request.tenantId
+            request.tenantId,
+            request.fromDate,
+            request.toDate
           ).pipe(
             finalize(() => {
               finishedCallback();
@@ -86,9 +92,10 @@ export class ActivityLogComponent extends PagedListingComponentBase<ActivityLogD
       else{
         this._activityLogService
         .getAll(
-          request.keyword,
           request.vendingMachine,
-          request.tenantId
+          request.tenantId,
+          request.fromDate,
+          request.toDate
         ).pipe(
           finalize(() => {
             finishedCallback();

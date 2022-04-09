@@ -10,5 +10,7 @@ namespace SYT.VendingMachineSystem.Sales.Dto
     {
         public string Keyword { get; set; }
         public int tenantId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
     }
 }

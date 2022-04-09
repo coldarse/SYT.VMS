@@ -19,9 +19,18 @@ namespace SYT.VendingMachineSystem.ActivityLogs
 
         protected override IQueryable<ActivityLog> CreateFilteredQuery(PagedActivityLogResultRequestDto input)
         {
-            return Repository.GetAllIncluding()
+            DateTime fromDate = Convert.ToDateTime(input.FromDate);
+            DateTime toDate = Convert.ToDateTime(input.ToDate);
+            var filteredQuery = Repository.GetAllIncluding()
                 .WhereIf(!input.VendingMachine.IsNullOrWhiteSpace(), x => x.VendingMachineName.Contains(input.VendingMachine))
-                .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
+                .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId))
+                .Where(x => x.lastUpdatedTime >= fromDate && x.lastUpdatedTime <= toDate.AddDays(1).AddSeconds(-1)); ;
+
+            if (filteredQuery.Any()) return filteredQuery;
+
+            return Repository.GetAllIncluding()
+            .WhereIf(!input.VendingMachine.IsNullOrWhiteSpace(), x => x.VendingMachineName.Contains(input.VendingMachine))
+            .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
         }
     }
 }
