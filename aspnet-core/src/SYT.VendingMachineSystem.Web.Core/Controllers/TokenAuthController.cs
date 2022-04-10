@@ -23,6 +23,7 @@ using SYT.VendingMachineSystem.EncryptKeys;
 using SYT.VendingMachineSystem.ActivityLogs;
 using SYT.VendingMachineSystem.Sales;
 using Abp.Domain.Uow;
+using SYT.VendingMachineSystem.Items;
 
 namespace SYT.VendingMachineSystem.Controllers
 {
@@ -39,6 +40,7 @@ namespace SYT.VendingMachineSystem.Controllers
         private readonly IRepository<VendingMachine> _VendingMachineRepository;
         private readonly IRepository<ActivityLog> _ActivityLogRepository;
         private readonly IRepository<Sale> _SaleRepository;
+        private readonly IRepository<Item> _ItemRepository;
         private readonly IUnitOfWorkManager _unitOfWorkManager;
 
         public TokenAuthController(
@@ -52,6 +54,7 @@ namespace SYT.VendingMachineSystem.Controllers
             IRepository<VendingMachine> VendingMachineRepository,
             IRepository<ActivityLog> ActivityLogRepository,
             IRepository<Sale> SaleRepository,
+            IRepository<Item> ItemRepository,
             IUnitOfWorkManager unitOfWorkManager)
         {
             _logInManager = logInManager;
@@ -64,10 +67,41 @@ namespace SYT.VendingMachineSystem.Controllers
             _VendingMachineRepository = VendingMachineRepository;
             _ActivityLogRepository = ActivityLogRepository;
             _SaleRepository = SaleRepository;
+            _ItemRepository = ItemRepository;
             _unitOfWorkManager = unitOfWorkManager;
         }
 
         #region CustomAPI
+
+        [HttpGet]
+        public async Task<itemDto> getItemCodes(string vendingMachineName)
+        {
+            List<VendingMachine> tempVending = _VendingMachineRepository.GetAll().ToList();
+
+            foreach (var tv in tempVending)
+            {
+                if (tv.Name == vendingMachineName)
+                {
+                    if (tv.isSubscribed == true)
+                    {
+                        itemDto ic = new itemDto();
+                        ic.vendingMachineName = vendingMachineName;
+
+                        List<Item> tempItem = _ItemRepository.GetAll().Where(x => x.VendingMachine == vendingMachineName).ToList();
+                        foreach(var item in tempItem)
+                        {
+                            ic.itemCodes.Add(item.ItemCode);
+                        }
+                        return ic;
+                    }
+                    else
+                    {
+                        throw new UserFriendlyException("Vending Machine is not Subscribed!", "401");
+                    }
+                }
+            }
+            throw new UserFriendlyException("Vending Machine is not Found!", "401");
+        }
 
         [HttpPut]
         public async void updateVendingMachineStatus(vendingMachineDto vendingMachine)
@@ -91,7 +125,6 @@ namespace SYT.VendingMachineSystem.Controllers
                     break;
                 }
             }
-            
         }    
 
         [HttpPost]

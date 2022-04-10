@@ -40,11 +40,9 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
     public ete: ExportExcelService,
   ) {
     super(injector);
+    if(this.appSession.tenantId == null) this.isHost = true;
    }
 
-  ngOnInit(): void {
-    if(this.appSession.tenantId == null) this.isHost = true;
-  }
 
   generateReport(){
     this._saleService
@@ -56,8 +54,8 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
       )
       .subscribe((result: SaleDto[]) => {
         this.excelSalesData = result;
-        if(this.sales.length != 0){
-          this.sales.forEach((row: any) => {
+        if(this.excelSalesData.length != 0){
+          this.excelSalesData.forEach((row: any) => {
             this.dataForExcel.push({
               'Id': row.id,
               'Vending Machine': row.vendingMachine,

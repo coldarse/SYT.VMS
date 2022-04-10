@@ -45,11 +45,9 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
     private _modalService: BsModalService
   ) {
     super(injector);
-  }
-
-  ngOnInit(): void {
     if(this.appSession.tenantId == null) this.isHost = true;
   }
+
 
   createVendingMachine(){
     this.showCreateOrEditVendingMachineDialog();

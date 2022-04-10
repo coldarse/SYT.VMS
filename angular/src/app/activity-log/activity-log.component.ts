@@ -34,11 +34,9 @@ export class ActivityLogComponent extends PagedListingComponentBase<ActivityLogD
     private _tenantService: TenantServiceProxy,
   ) {
     super(injector);
-  }
-
-  ngOnInit(): void {
     if(this.appSession.tenantId == null) this.isHost = true;
   }
+
 
   protected list(
     request: PagedVendingMachinesRequestDto,

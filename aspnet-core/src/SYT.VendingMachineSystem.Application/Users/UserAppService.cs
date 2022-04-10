@@ -220,7 +220,11 @@ namespace SYT.VendingMachineSystem.Users
             }
             
             var currentUser = await _userManager.GetUserByIdAsync(_abpSession.GetUserId());
-            var loginAsync = await _logInManager.LoginAsync(currentUser.UserName, input.AdminPassword, shouldLockout: false);
+
+            var loginAsync = input.TenancyName == "" ? 
+                await _logInManager.LoginAsync(currentUser.UserName, input.AdminPassword, shouldLockout: false):
+                await _logInManager.LoginAsync(currentUser.UserName, input.AdminPassword, tenancyName: input.TenancyName, shouldLockout: false);
+
             if (loginAsync.Result != AbpLoginResultType.Success)
             {
                 throw new UserFriendlyException("Your 'Admin Password' did not match the one on record.  Please try again.");

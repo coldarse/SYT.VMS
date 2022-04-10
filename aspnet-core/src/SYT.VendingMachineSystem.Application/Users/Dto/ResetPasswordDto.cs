@@ -12,5 +12,6 @@ namespace SYT.VendingMachineSystem.Users.Dto
 
         [Required]
         public string NewPassword { get; set; }
+        public string TenancyName { get; set; }
     }
 }

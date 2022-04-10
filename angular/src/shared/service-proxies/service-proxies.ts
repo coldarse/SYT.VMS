@@ -1083,7 +1083,7 @@ export class ExportExcelService {
       })
 
     }
-  }
+}
 
 @Injectable()
 export class SaleServiceProxy {
@@ -4476,6 +4476,7 @@ export class ResetPasswordDto implements IResetPasswordDto {
     adminPassword: string;
     userId: number;
     newPassword: string;
+    tenancyName: string | undefined;
 
     constructor(data?: IResetPasswordDto) {
         if (data) {
@@ -4491,6 +4492,7 @@ export class ResetPasswordDto implements IResetPasswordDto {
             this.adminPassword = _data["adminPassword"];
             this.userId = _data["userId"];
             this.newPassword = _data["newPassword"];
+            this.tenancyName = _data["tenancyName"];
         }
     }
 
@@ -4506,6 +4508,7 @@ export class ResetPasswordDto implements IResetPasswordDto {
         data["adminPassword"] = this.adminPassword;
         data["userId"] = this.userId;
         data["newPassword"] = this.newPassword;
+        data["tenancyName"] = this.tenancyName;
         return data;
     }
 
@@ -4521,6 +4524,7 @@ export interface IResetPasswordDto {
     adminPassword: string;
     userId: number;
     newPassword: string;
+    tenancyName: string | undefined;
 }
 
 export class RoleDto implements IRoleDto {

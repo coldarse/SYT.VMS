@@ -27,4 +27,11 @@ namespace SYT.VendingMachineSystem.EncryptKeys
         public string vendingMachineName { get; set; }
         public string itemCode { get; set; }
     }
+
+    public class itemDto
+    {
+        public string vendingMachineName { get; set; }
+        public List<string> itemCodes { get; set; }
+    }
+
 }

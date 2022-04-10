@@ -24,13 +24,15 @@ namespace SYT.VendingMachineSystem.Sales
             var filteredQuery = Repository.GetAllIncluding()
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.VendingMachine.Contains(input.Keyword))
                 .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId))
-                .Where(x => x.OrderTime >= fromDate && x.OrderTime <= toDate.AddDays(1).AddSeconds(-1));
+                .Where(x => x.OrderTime >= fromDate && x.OrderTime <= toDate.AddDays(1).AddSeconds(-1))
+                .OrderByDescending(x => x.Id);
 
             if(filteredQuery.Any()) return filteredQuery;
 
             return Repository.GetAllIncluding()
             .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.VendingMachine.Contains(input.Keyword))
-            .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
+            .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId))
+            .OrderByDescending(x => x.Id);
         }
 
         public List<Sale> getDataForReport(PagedSaleResultRequestDto input)

@@ -31,6 +31,7 @@ export class ResetPasswordDialogComponent extends AppComponentBase
     this.resetPasswordDto.newPassword = Math.random()
       .toString(36)
       .substr(2, 10);
+    this.resetPasswordDto.tenancyName = this.appSession.tenantId == null ? "" : this.appSession.tenant.tenancyName;
     this.isLoading = false;
   }
 
