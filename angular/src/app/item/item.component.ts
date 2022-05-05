@@ -30,6 +30,7 @@ export class ItemComponent extends PagedListingComponentBase<ItemDto> {
     private _modalService: BsModalService
   ) {
     super(injector);
+    if(this.appSession.tenantId == null) this.isHost = true;
   }
 
   createItem(){
