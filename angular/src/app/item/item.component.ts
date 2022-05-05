@@ -157,6 +157,8 @@ export class ItemComponent extends PagedListingComponentBase<ItemDto> {
     );
   }
 
-
+  isButtonVisible(action: string): boolean {
+    return this.permission.isGranted("Pages.Item." + action);
+  }
 
 }

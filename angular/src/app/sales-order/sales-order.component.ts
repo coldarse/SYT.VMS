@@ -160,4 +160,8 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
     throw new Error('Method not implemented.');
   }
 
+  isButtonVisible(action: string): boolean {
+    return this.permission.isGranted("Pages.SalesOrder." + action);
+  }
+
 }

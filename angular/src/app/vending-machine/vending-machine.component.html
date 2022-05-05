@@ -193,7 +193,7 @@
                                         {{ "Restart" | localize }}
                                     </button>
                                 </td>
-                                <td>
+                                <td *ngIf="isButtonVisible('Edit') && isButtonVisible('Delete')">
                                     <button
                                             type="button"
                                             class="btn btn-sm bg-secondary"
