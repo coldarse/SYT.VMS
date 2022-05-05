@@ -11,6 +11,7 @@ import { ChangePasswordComponent } from './users/change-password/change-password
 import { VendingMachineComponent } from './vending-machine/vending-machine.component';
 import { ActivityLogComponent } from './activity-log/activity-log.component';
 import { SalesOrderComponent } from './sales-order/sales-order.component';
+import { ItemComponent } from './item/item.component';
 
 @NgModule({
     imports: [
@@ -25,9 +26,10 @@ import { SalesOrderComponent } from './sales-order/sales-order.component';
                     { path: 'tenants', component: TenantsComponent, data: { permission: 'Pages.Tenants' }, canActivate: [AppRouteGuard] },
                     { path: 'about', component: AboutComponent, canActivate: [AppRouteGuard] },
                     { path: 'update-password', component: ChangePasswordComponent, canActivate: [AppRouteGuard] },
-                    { path: 'vending-machine', component: VendingMachineComponent },
-                    { path: 'activity-log', component: ActivityLogComponent },
-                    { path: 'sales-order', component: SalesOrderComponent }
+                    { path: 'vending-machine', data: { permission: 'Pages.VendingMachine' }, component: VendingMachineComponent, canActivate: [AppRouteGuard] },
+                    { path: 'activity-log', data: { permission: 'Pages.ActivityLog' }, component: ActivityLogComponent, canActivate: [AppRouteGuard] },
+                    { path: 'sales-order', data: { permission: 'Pages.SalesOrder' }, component: SalesOrderComponent, canActivate: [AppRouteGuard] },
+                    { path: 'item', data: { permission: 'Pages.Item' }, component: ItemComponent, canActivate: [AppRouteGuard] }
                 ]
             }
         ])

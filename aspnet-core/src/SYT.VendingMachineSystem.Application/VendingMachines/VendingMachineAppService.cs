@@ -26,5 +26,17 @@ namespace SYT.VendingMachineSystem.VendingMachines
                 .WhereIf(input.tenantId != 1, x => x.TenantId.Equals(input.tenantId));
 
         }
+
+        public List<VendingMachine> getListOfVendingMachine(int tenantId, bool isTenant)
+        {
+            if (isTenant)
+            {
+                return Repository.GetAll().ToList();
+            }
+            else
+            {
+                return Repository.GetAll().Where(x => x.TenantId == tenantId).ToList();
+            }
+        }
     }
 }

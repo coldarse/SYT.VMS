@@ -74,7 +74,7 @@ namespace SYT.VendingMachineSystem.Controllers
         #region CustomAPI
 
         [HttpGet]
-        public async Task<itemDto> getItemCodes(string vendingMachineName)
+        public async Task<itemByVending> getItemCodes(string vendingMachineName)
         {
             List<VendingMachine> tempVending = _VendingMachineRepository.GetAll().ToList();
 
@@ -84,10 +84,11 @@ namespace SYT.VendingMachineSystem.Controllers
                 {
                     if (tv.isSubscribed == true)
                     {
-                        itemDto ic = new itemDto();
+                        itemByVending ic = new itemByVending();
                         ic.vendingMachineName = vendingMachineName;
 
                         List<Item> tempItem = _ItemRepository.GetAll().Where(x => x.VendingMachine == vendingMachineName).ToList();
+                        ic.itemCodes = new List<string>();
                         foreach(var item in tempItem)
                         {
                             ic.itemCodes.Add(item.ItemCode);

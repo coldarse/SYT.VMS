@@ -66,17 +66,26 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(
                 this.l('VendingMachine'),
                 '/app/vending-machine',
-                'fas fa-blender'
+                'fas fa-blender',
+                'Pages.VendingMachine'
             ),
             new MenuItem(
                 this.l('ActivityLog'),
                 '/app/activity-log',
-                'fas fa-clipboard-list'
+                'fas fa-clipboard-list',
+                'Pages.ActivityLog'
             ),
             new MenuItem(
                 this.l('SalesOrder'),
                 '/app/sales-order',
-                'fas fa-cart-arrow-down'
+                'fas fa-cart-arrow-down',
+                'Pages.SalesOrder'
+            ),
+            new MenuItem(
+                this.l('Item'),
+                '/app/item',
+                'fas fa-utensil-spoon',
+                'Pages.Item'
             ),
         ];
     }

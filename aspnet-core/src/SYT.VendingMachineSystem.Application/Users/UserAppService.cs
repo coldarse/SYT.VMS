@@ -25,7 +25,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SYT.VendingMachineSystem.Users
 {
-    [AbpAuthorize(PermissionNames.Pages_Users)]
+    
     public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
         private readonly UserManager _userManager;
@@ -53,6 +53,7 @@ namespace SYT.VendingMachineSystem.Users
             _logInManager = logInManager;
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             CheckCreatePermission();
@@ -76,6 +77,7 @@ namespace SYT.VendingMachineSystem.Users
             return MapToEntityDto(user);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task<UserDto> UpdateAsync(UserDto input)
         {
             CheckUpdatePermission();
@@ -94,36 +96,21 @@ namespace SYT.VendingMachineSystem.Users
             return await GetAsync(input);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
             var user = await _userManager.GetUserByIdAsync(input.Id);
             await _userManager.DeleteAsync(user);
         }
 
-        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
-        public async Task Activate(EntityDto<long> user)
-        {
-            await Repository.UpdateAsync(user.Id, async (entity) =>
-            {
-                entity.IsActive = true;
-            });
-        }
-
-        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
-        public async Task DeActivate(EntityDto<long> user)
-        {
-            await Repository.UpdateAsync(user.Id, async (entity) =>
-            {
-                entity.IsActive = false;
-            });
-        }
-
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public async Task<ListResultDto<RoleDto>> GetRoles()
         {
             var roles = await _roleRepository.GetAllListAsync();
             return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public async Task ChangeLanguage(ChangeUserLanguageDto input)
         {
             await SettingManager.ChangeSettingForUserAsync(
@@ -133,6 +120,7 @@ namespace SYT.VendingMachineSystem.Users
             );
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override User MapToEntity(CreateUserDto createInput)
         {
             var user = ObjectMapper.Map<User>(createInput);
@@ -140,12 +128,14 @@ namespace SYT.VendingMachineSystem.Users
             return user;
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override void MapToEntity(UserDto input, User user)
         {
             ObjectMapper.Map(input, user);
             user.SetNormalizedNames();
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override UserDto MapToEntityDto(User user)
         {
             var roleIds = user.Roles.Select(x => x.RoleId).ToArray();
@@ -158,6 +148,7 @@ namespace SYT.VendingMachineSystem.Users
             return userDto;
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override IQueryable<User> CreateFilteredQuery(PagedUserResultRequestDto input)
         {
             return Repository.GetAllIncluding(x => x.Roles)
@@ -165,6 +156,7 @@ namespace SYT.VendingMachineSystem.Users
                 .WhereIf(input.IsActive.HasValue, x => x.IsActive == input.IsActive);
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override async Task<User> GetEntityByIdAsync(long id)
         {
             var user = await Repository.GetAllIncluding(x => x.Roles).FirstOrDefaultAsync(x => x.Id == id);
@@ -177,41 +169,19 @@ namespace SYT.VendingMachineSystem.Users
             return user;
         }
 
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         protected override IQueryable<User> ApplySorting(IQueryable<User> query, PagedUserResultRequestDto input)
         {
             return query.OrderBy(r => r.UserName);
         }
 
+        //[AbpAuthorize(PermissionNames.Pages_Users)]
         protected virtual void CheckErrors(IdentityResult identityResult)
         {
             identityResult.CheckErrors(LocalizationManager);
         }
 
-        public async Task<bool> ChangePassword(ChangePasswordDto input)
-        {
-            await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-
-            var user = await _userManager.FindByIdAsync(AbpSession.GetUserId().ToString());
-            if (user == null)
-            {
-                throw new Exception("There is no current user!");
-            }
-            
-            if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
-            {
-                CheckErrors(await _userManager.ChangePasswordAsync(user, input.NewPassword));
-            }
-            else
-            {
-                CheckErrors(IdentityResult.Failed(new IdentityError
-                {
-                    Description = "Incorrect password."
-                }));
-            }
-
-            return true;
-        }
-
+        [AbpAuthorize(PermissionNames.Pages_Users)]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
             if (_abpSession.UserId == null)
@@ -246,6 +216,52 @@ namespace SYT.VendingMachineSystem.Users
             {
                 user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
                 await CurrentUnitOfWork.SaveChangesAsync();
+            }
+
+            return true;
+        }
+
+
+
+        [AbpAuthorize(PermissionNames.Pages_Users_Activation, PermissionNames.Pages_Users)]
+        public async Task Activate(EntityDto<long> user)
+        {
+            await Repository.UpdateAsync(user.Id, async (entity) =>
+            {
+                entity.IsActive = true;
+            });
+        }
+
+        [AbpAuthorize(PermissionNames.Pages_Users_Activation, PermissionNames.Pages_Users)]
+        public async Task DeActivate(EntityDto<long> user)
+        {
+            await Repository.UpdateAsync(user.Id, async (entity) =>
+            {
+                entity.IsActive = false;
+            });
+        }
+
+        [AbpAuthorize(PermissionNames.Pages_Users_ChangePassword)]
+        public async Task<bool> ChangePassword(ChangePasswordDto input)
+        {
+            await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
+
+            var user = await _userManager.FindByIdAsync(AbpSession.GetUserId().ToString());
+            if (user == null)
+            {
+                throw new Exception("There is no current user!");
+            }
+
+            if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
+            {
+                CheckErrors(await _userManager.ChangePasswordAsync(user, input.NewPassword));
+            }
+            else
+            {
+                CheckErrors(IdentityResult.Failed(new IdentityError
+                {
+                    Description = "Incorrect password."
+                }));
             }
 
             return true;

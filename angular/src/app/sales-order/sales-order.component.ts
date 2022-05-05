@@ -45,6 +45,8 @@ export class SalesOrderComponent extends PagedListingComponentBase<SaleDto> {
 
 
   generateReport(){
+    this.dataForExcel = [];
+    this.excelSalesData = [];
     this._saleService
       .getDataForReport(
         this.keyword,

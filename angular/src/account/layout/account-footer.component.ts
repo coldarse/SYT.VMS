@@ -15,7 +15,7 @@ export class AccountFooterComponent extends AppComponentBase {
 
     this.currentYear = new Date().getFullYear();
     this.versionText =
-      this.appSession.application.version +
+      '1.0.0.0' +
       ' [' +
       this.appSession.application.releaseDate.format('YYYYDDMM') +
       ']';

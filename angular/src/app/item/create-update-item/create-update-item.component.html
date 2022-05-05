@@ -1,0 +1,58 @@
+<form
+  class="form-horizontal"
+  autocomplete="off"
+  #createVendingMachineModal="ngForm"
+  (ngSubmit)="save()"
+  *ngIf="isVMLoaded"
+>
+  <abp-modal-header
+    [title]="isCreate == true? ('Add Item' | localize) : ('Edit Item' | localize)"
+    (onCloseClick)="bsModalRef.hide()"
+  ></abp-modal-header>
+  <div class="modal-body">
+    <div class="form-group row required">
+        <label class="col-md-3 col-form-label" for="vendingMachine">
+        {{ "Vending Machine" | localize }}
+        </label>
+        <div class="col-md-9">
+        <select
+            class="form-control"
+            name="vendingMachine"
+            id="vendingMachine"
+            [(ngModel)]="vmName"
+            required
+            (change)="selectedVM($event.target.value)"
+            >
+            <option value="{{vm.id}}" *ngFor="let vm of vmList">{{ vm.name }}</option>
+        </select>
+        </div>
+    </div>
+    <div class="form-group row required">
+      <label class="col-md-3 col-form-label" for="itemCode">
+      {{ "Item Code" | localize }}
+      </label>
+      <div class="col-md-9">
+      <input
+          type="text"
+          class="form-control"
+          name="itemCode"
+          id="itemCode"
+          required
+          maxlength="32"
+          [(ngModel)]="item.itemCode"
+          #itemCodeModel="ngModel"
+          #itemCodeEl
+      />
+      <abp-validation-summary
+          [control]="itemCodeModel"
+          [controlEl]="itemCodeEl"
+      ></abp-validation-summary>
+      </div>
+    </div>
+  </div>
+  <abp-modal-footer
+    [cancelDisabled]="saving"
+    [saveDisabled]="!createVendingMachineModal.form.valid || saving"
+    (onCancelClick)="bsModalRef.hide()"
+  ></abp-modal-footer>
+</form>

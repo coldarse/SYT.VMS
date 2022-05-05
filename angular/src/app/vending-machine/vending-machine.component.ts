@@ -48,15 +48,6 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
     if(this.appSession.tenantId == null) this.isHost = true;
   }
 
-
-  createVendingMachine(){
-    this.showCreateOrEditVendingMachineDialog();
-  }
-
-  editUser(entity: VendingMachineDto){
-    this.showCreateOrEditVendingMachineDialog(entity.id);
-  }
-
   restart(entity: VendingMachineDto){
     entity.restart = true;
     this._vendingMachineService.update(entity).subscribe(
@@ -69,6 +60,14 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
         }
       }
     );
+  }
+
+  createVendingMachine(){
+    this.showCreateOrEditVendingMachineDialog();
+  }
+
+  editVendingMachine(entity: VendingMachineDto){
+    this.showCreateOrEditVendingMachineDialog(entity.id);
   }
 
   private showCreateOrEditVendingMachineDialog(id?: number): void {
@@ -206,7 +205,9 @@ export class VendingMachineComponent extends PagedListingComponentBase<VendingMa
     );
   }
 
-
+  isButtonVisible(action: string): boolean {
+    return this.permission.isGranted("Pages.VendingMachine." + action);
+  }
 
 
 

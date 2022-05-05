@@ -6,7 +6,7 @@
                     <h1>{{ "Vending Machines" | localize }}</h1>
                 </div>
                 <div class="col-6 text-right">
-                    <a href="javascript:;" class="btn bg-blue" (click)="createVendingMachine()" *ngIf="!isHost">
+                    <a href="javascript:;" class="btn bg-blue" (click)="createVendingMachine()" *ngIf="!isHost && isButtonVisible('Create')">
                         <i class="fa fa-plus-square"></i>
                         {{ "Create" | localize }}
                     </a>
@@ -147,7 +147,7 @@
                                 <th *ngIf="isHost">{{ "Subscribed" | localize }}</th>
                                 <th *ngIf="isHost">{{ "Tenant" | localize }}</th>
                                 <th>{{ "Restart" | localize }}</th>
-                                <th style="width: 310px;">{{ "Actions" | localize }}</th>
+                                <th style="width: 310px;" *ngIf="isButtonVisible('Edit') && isButtonVisible('Delete')">{{ "Actions" | localize }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -197,7 +197,8 @@
                                     <button
                                             type="button"
                                             class="btn btn-sm bg-secondary"
-                                            (click)="editUser(vendingMachine)"
+                                            (click)="editVendingMachine(vendingMachine)"
+                                            *ngIf="isButtonVisible('Edit')"
                                     >
                                         <i class="fas fa-pencil-alt"></i>
                                         {{ "Edit" | localize }}
@@ -206,6 +207,7 @@
                                             type="button"
                                             class="btn btn-sm bg-danger mx-2"
                                             (click)="delete(vendingMachine)"
+                                            *ngIf="isButtonVisible('Delete')"
                                     >
                                         <i class="fas fa-trash"></i>
                                         {{ "Delete" | localize }}
