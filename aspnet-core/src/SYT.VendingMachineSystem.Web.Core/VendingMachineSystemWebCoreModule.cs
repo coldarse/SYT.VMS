@@ -40,6 +40,8 @@ namespace SYT.VendingMachineSystem
                 VendingMachineSystemConsts.ConnectionStringName
             );
 
+            Configuration.Auditing.IsEnabled = false;
+
             // Send all Error to Front End, Swagger Show Error
             //Configuration.Modules.AbpWebCommon().SendAllExceptionsToClients = true;
 
