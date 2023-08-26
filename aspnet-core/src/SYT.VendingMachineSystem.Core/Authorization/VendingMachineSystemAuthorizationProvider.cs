@@ -18,6 +18,7 @@ namespace SYT.VendingMachineSystem.Authorization
             context.CreatePermission(PermissionNames.Pages_VendingMachine_Create, L("VendingMachineCreate"));
             context.CreatePermission(PermissionNames.Pages_VendingMachine_Edit, L("VendingMachineEdit"));
             context.CreatePermission(PermissionNames.Pages_VendingMachine_Delete, L("VendingMachineDelete"));
+
             context.CreatePermission(PermissionNames.Pages_ActivityLog, L("ActivityLog"));
             context.CreatePermission(PermissionNames.Pages_SalesOrder, L("SalesOrder"));
             context.CreatePermission(PermissionNames.Pages_SalesOrder_GenerateReport, L("SalesOrderGenerateReport"));

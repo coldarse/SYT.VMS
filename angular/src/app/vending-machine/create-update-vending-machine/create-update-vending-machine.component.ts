@@ -46,7 +46,7 @@ export class CreateUpdateVendingMachineComponent extends AppComponentBase
     this.saving = true;
 
     this.vendingMachine.status = this.vendingMachine.status == undefined ? false : this.vendingMachine.status;
-    this.vendingMachine.lastUpdatedTime = moment(new Date());
+    // this.vendingMachine.lastUpdatedTime = moment(new Date());
     this.vendingMachine.tenantId = this.isHost == true ? 1 : this.appSession.tenantId;
     if(!this.isHost) this.vendingMachine.isSubscribed = this.vendingMachine.isSubscribed == undefined ? true : this.vendingMachine.isSubscribed;
 

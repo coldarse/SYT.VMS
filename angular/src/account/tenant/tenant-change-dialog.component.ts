@@ -7,6 +7,7 @@ import {
   IsTenantAvailableInput,
   IsTenantAvailableOutput
 } from '@shared/service-proxies/service-proxies';
+import { Router } from '@angular/router';
 
 @Component({
   templateUrl: './tenant-change-dialog.component.html'
@@ -18,7 +19,8 @@ export class TenantChangeDialogComponent extends AppComponentBase {
   constructor(
     injector: Injector,
     private _accountService: AccountServiceProxy,
-    public bsModalRef: BsModalRef
+    public bsModalRef: BsModalRef,
+    private router: Router
   ) {
     super(injector);
   }
@@ -27,6 +29,7 @@ export class TenantChangeDialogComponent extends AppComponentBase {
     if (!this.tenancyName) {
       abp.multiTenancy.setTenantIdCookie(undefined);
       this.bsModalRef.hide();
+      this.router.navigate(['']);
       location.reload();
       return;
     }
@@ -40,6 +43,7 @@ export class TenantChangeDialogComponent extends AppComponentBase {
         switch (result.state) {
           case AppTenantAvailabilityState.Available:
             abp.multiTenancy.setTenantIdCookie(result.tenantId);
+            this.router.navigate(['']);
             location.reload();
             return;
           case AppTenantAvailabilityState.InActive:

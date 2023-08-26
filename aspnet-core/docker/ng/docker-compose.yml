@@ -1,17 +1,26 @@
-version: '2'
+version: '3'
 
 services:
 
-    abp_host:
-        image: abp/host
-        environment:
-            - ASPNETCORE_ENVIRONMENT=Staging
-        ports:
-            - "9901:80"
-        volumes:
-            - "./Host-Logs:/app/App_Data/Logs"
+  vending_api:
+    build: ./
+    image: dannychen98/vending_api:v1
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Staging"
+      ConnectionStrings__Default: "server=95.217.117.197;port=3306;database=VMS;uid=system;pwd=syt1234;"
+      App__ServerRootAddress: "http://95.217.117.206:44311/"
+      App__ClientRootAddress: "http://95.217.117.206:4200/"
+      App__CorsOrigins: "http://95.217.117.206:4200"
+      TZ: "America/Toronto"
+      Kestrel__Endpoints__Http__Url: "http://+:80"
+    ports:
+      - "44311:80"
+    volumes:
+      - "./Host-Logs:/app/App_Data/Logs"
+    restart: always
 
-    abp_ng:
-        image: abp/ng
-        ports:
-            - "9902:80"
+  vending_ms:
+    build: ./
+    image: dannychen98/vending_ms:v1
+    ports:
+      - "4200:80"

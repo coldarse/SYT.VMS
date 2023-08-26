@@ -143,6 +143,7 @@ export class ItemComponent extends PagedListingComponentBase<ItemDto> {
         });
       }
   }
+  
   protected delete(entity: ItemDto): void {
     abp.message.confirm(
       this.l('UserDeleteWarningMessage', entity.itemCode),
